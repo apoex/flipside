@@ -1,6 +1,23 @@
 # frozen_string_literal: true
 
+require "bundler/setup"
+require "active_record"
+require "yaml"
+require "logger"
+require "byebug"
+require "timecop"
 require "flipside"
+
+# Load and establish connection to the database
+ActiveRecord::Base.configurations = YAML.load_file(File.expand_path("database.yml", __dir__))
+ActiveRecord::Base.establish_connection(:test)
+
+# Optional: Enable logging if you want to see SQL queries during tests
+# ActiveRecord::Base.logger = Logger.new(STDOUT)
+
+migration_path = File.expand_path("../lib/generators/flipside/install/templates", __dir__)
+migration_context = ActiveRecord::MigrationContext.new(migration_path)
+migration_context.migrate
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
