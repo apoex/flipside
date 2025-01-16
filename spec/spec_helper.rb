@@ -5,7 +5,6 @@ require "active_record"
 require "yaml"
 require "logger"
 require "byebug"
-require "timecop"
 require "flipside"
 
 # Load and establish connection to the database
@@ -28,5 +27,12 @@ RSpec.configure do |config|
 
   config.expect_with :rspec do |c|
     c.syntax = :expect
+  end
+
+  config.after do
+    Flipside::Feature.destroy_all
+    Flipside::Entity.destroy_all
+    Flipside::Role.destroy_all
+    Flipside::Value.destroy_all
   end
 end

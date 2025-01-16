@@ -12,7 +12,7 @@ module Flipside
       def create_migration_file
         # Check if the migration file already exists to avoid duplicates
         unless ActiveRecord::Base.connection.table_exists?("flipside")
-          migration_template "20241122_create_flipside_migration.rb", "db/migrate/create_flipside_features.rb"
+          migration_template "20241122_create_flipside_migration.rb", "db/migrate/create_flipside_migration.rb"
         end
       end
     end
