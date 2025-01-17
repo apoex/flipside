@@ -1,0 +1,13 @@
+<h1 class="mt-12 text-center text-slate-300 text-3xl font-semibold">Feature flags</h1>
+
+<div class="mt-12 w-3/4 m-auto">
+  <ul>
+    <% features.each do |feature| %>
+      <li class="border-b border-slate-500 hover:font-semibold">
+        <a href=<%= feature.href %>>
+          <%= erb :_feature_item, locals: {feature:} %>
+        </a>
+      </li>
+    <% end %>
+  </ul>
+</div>

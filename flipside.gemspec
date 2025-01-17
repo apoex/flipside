@@ -26,6 +26,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["app", "lib"]
 
   spec.add_dependency "activerecord", ">= 6.0"
+  spec.add_dependency "sinatra"
 
   spec.add_development_dependency "byebug"
   spec.add_development_dependency "rspec", "~> 3.0"

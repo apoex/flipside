@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="importmap">
+      {
+      "imports": {
+        "@hotwired/stimulus": "https://cdn.jsdelivr.net/npm/@hotwired/stimulus/dist/stimulus.js",
+        "toggle_controller": "/flipside/toggle_controller.js"
+      }
+    }
+    </script>
+  </head>
+  <body class="w-full h-full bg-slate-600">
+    <div id="main">
+      <%= yield %>
+    </div>
+
+    <script src="/flipside/index.js" type="module" ></script>
+  </body>
+</html>

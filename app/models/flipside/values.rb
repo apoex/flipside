@@ -17,6 +17,8 @@ module Flipside
     end
 
     def enabled_for?(value)
+      return false if value.blank?
+
       roles.where(
         class_name: Value::VALUE_CLASS,
         method: value

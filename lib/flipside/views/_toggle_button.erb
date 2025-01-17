@@ -1,0 +1,25 @@
+<% color = feature.enabled ? "bg-blue-700" : "bg-gray-200" %>
+<% translate = feature.enabled ? "translate-x-5" : "translate-x-0" %>
+
+<button type="button"
+        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent <%= color %> transition-colors duration-200 ease-in-out"
+        data-controller="toggle"
+        data-action="click->toggle#switch:prevent"
+        data-toggle-url-value="<%= feature.toggle_href %>"
+        data-toggle-enabled-value="<%= feature.enabled %>"
+        >
+        <span class="sr-only">Use setting</span>
+        <span aria-hidden="true" class="pointer-events-none inline-block size-5 <%= translate %> transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+</button>
+
+<%# <form action="<%= feature.toggle_href %1>" method="post"> %>
+<%#   <input type="button" %>
+<%#          class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent <%= color %1> transition-colors duration-200 ease-in-out" %>
+<%#          role="switch" %>
+<%#          aria-checked="false" %>
+<%#          data-toggle-url-value="<%= feature.toggle_href %1>" %>
+<%#          > %>
+<%#            <span class="sr-only">Use setting</span> %>
+<%#            <span aria-hidden="true" class="pointer-events-none inline-block size-5 <%= translate %1> transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span> %>
+<%#   </button> %>
+<%# </form> %>

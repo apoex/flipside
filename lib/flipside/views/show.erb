@@ -1,0 +1,30 @@
+<div class="m-12">
+  <a href="<%= base_path %>" class="p-2 rounded-lg text-xl text-slate-300 bg-sky-800 border border-sky-900">Back</a>
+  <h1 class="text-center text-slate-300 text-3xl font-semibold">Feature: <%= feature.name %></h1>
+
+  <div class="mt-12 w-3/4 m-auto text-left text-slate-300">
+    <table>
+      <tr>
+        <th>Name</th>
+        <td><%= feature.name %></td>
+      </tr>
+      <tr>
+        <th>Description</th>
+        <td><%= feature.description %></td>
+      </tr>
+      <tr>
+        <th>Enabled</th>
+        <td><%= feature.enabled %></td>
+      </tr>
+      <tr>
+        <th>Activated at</th>
+        <td><%= feature.activated_at || "-" %></td>
+      </tr>
+      <tr>
+        <th>Deactivated at</th>
+        <td><%= feature.deactivated_at || "-" %></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
