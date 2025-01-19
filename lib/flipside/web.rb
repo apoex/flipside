@@ -17,7 +17,7 @@ module Flipside
 
     get "/feature/:name" do
       halt 404 unless feature
-      erb :show, locals: {feature:, base_path:}
+      erb :show, locals: {feature: FeaturePresenter.new(feature, base_path)}
     end
 
     put "/feature/:name/toggle" do

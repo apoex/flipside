@@ -1,30 +1,42 @@
 <div class="m-12">
-  <a href="<%= base_path %>" class="p-2 rounded-lg text-xl text-slate-300 bg-sky-800 border border-sky-900">Back</a>
-  <h1 class="text-center text-slate-300 text-3xl font-semibold">Feature: <%= feature.name %></h1>
-
-  <div class="mt-12 w-3/4 m-auto text-left text-slate-300">
-    <table>
-      <tr>
-        <th>Name</th>
-        <td><%= feature.name %></td>
-      </tr>
-      <tr>
-        <th>Description</th>
-        <td><%= feature.description %></td>
-      </tr>
-      <tr>
-        <th>Enabled</th>
-        <td><%= feature.enabled %></td>
-      </tr>
-      <tr>
-        <th>Activated at</th>
-        <td><%= feature.activated_at || "-" %></td>
-      </tr>
-      <tr>
-        <th>Deactivated at</th>
-        <td><%= feature.deactivated_at || "-" %></td>
-      </tr>
-    </table>
+  <a href="<%= feature.back_path %>" class="p-2 rounded-lg text-xl text-slate-400 bg-blue-900 border border-blue-950 hover:bg-blue-800">Back</a>
+  <div class="mt-12 w-1/2 m-auto bg-gray-800 text-slate-400 p-8 rounded-lg shadow-lg">
+    <h1 class="text-2xl font-bold mb-6">Feature Details</h1>
+    <div class="mt-4 grid grid-cols-1 gap-4">
+      <div class="pb-6 border-b border-gray-600">
+        <div class="mt-2 flex justify-between items-center">
+          <span class="font-semibold">Name:</span>
+          <span><%= feature.name %></span>
+        </div>
+        <div class="mt-2 flex justify-between items-center">
+          <span class="font-semibold">Description:</span>
+          <span><%= feature.description %></span>
+        </div>
+      </div>
+      <div class="mt-2 flex justify-between items-center">
+        <span class="font-semibold">Enabled for all:</span>
+        <span><%= erb :_toggle_button, locals: {feature:} %></span>
+      </div>
+      <div class="mt-2 flex justify-between items-center">
+        <span class="font-semibold">Active From:</span>
+        <span><%= feature.activated_at || "-" %></span>
+      </div>
+      <div class="mt-2 flex justify-between items-center">
+        <span class="font-semibold">Active Until:</span>
+        <span><%= feature.deactivated_at || "-" %></span>
+      </div>
+      <div class="mt-2 flex justify-between items-center">
+        <span class="font-semibold">Entities:</span>
+        <span>
+          <%= erb :_modal, locals: {partial: :_add_entity, action: "Add entity", feature:} %>
+        </span>
+      </div>
+      <div class="mt-2 flex justify-between items-center">
+        <span class="font-semibold">Roles:</span>
+        <span>
+          <%= erb :_modal, locals: {partial: :_add_role, action: "Add role", feature:} %>
+        </span>
+      </div>
+    </div>
   </div>
 </div>
-

@@ -4,7 +4,7 @@ class FeaturePresenter
   extend Forwardable
   attr_reader :feature, :base_path
 
-  def_delegators :@feature, :name, :description, :enabled, :activated_at, :deactivated_at
+  def_delegators :@feature, :name, :description, :enabled
 
   def initialize(feature, base_path)
     @feature = feature
@@ -17,6 +17,10 @@ class FeaturePresenter
 
   def toggle_href
     File.join(href, "toggle")
+  end
+
+  def back_path
+    base_path
   end
 
   def status
@@ -35,6 +39,14 @@ class FeaturePresenter
     else
       "bg-zinc-600"
     end
+  end
+
+  def activated_at
+    feature.activated_at&.strftime("%Y-%m-%d %H:%M")
+  end
+
+  def deactivated_at
+    feature.deactivated_at&.strftime("%Y-%m-%d %H:%M")
   end
 
   def activates_soon?(period = 60 * 60 * 24)

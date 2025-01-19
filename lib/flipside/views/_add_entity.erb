@@ -1,0 +1,14 @@
+<form method="dialog">
+  <h3 class="text-xl font-bold mb-4">Search entities</h3>
+  <div data-controller="search">
+    <input
+      type="text"
+      list="search-results"
+      data-action="input->search#fetchResults"
+      data-search-url-value="/search"
+      placeholder="Search for items..."
+      class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <datalist id="search-results"></datalist>
+  </div>
+</form>
