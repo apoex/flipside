@@ -33,6 +33,6 @@ RSpec.configure do |config|
     Flipside::Feature.destroy_all
     Flipside::Entity.destroy_all
     Flipside::Role.destroy_all
-    Flipside::Value.destroy_all
+    Flipside::Key.destroy_all
   end
 end

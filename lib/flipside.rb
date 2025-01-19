@@ -40,7 +40,7 @@ module Flipside
 
     def add_key(name:, key:)
       feature = find_by!(name:)
-      Value.create(feature:, key: key)
+      Key.create(feature:, key: key)
     end
 
     def find_by(name:)
