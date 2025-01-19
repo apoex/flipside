@@ -8,12 +8,47 @@ module Flipside
   # Add class methods flipside_enity and flipside_role to models
   #
   class Error < StandardError; end
-  # Your code goes here...
 
-  def self.enabled?(name, object = nil)
-    feature = Feature.find_by(name:)
-    return false unless feature
+  class NoSuchFeauture < Error
+    def initialize(name)
+      super("There's no feature named '#{name}'")
+    end
+  end
 
-    feature.enabled? object
+  class << self
+    def enabled?(name, object = nil)
+      feature = find_by(name:)
+      return false unless feature
+
+      feature.enabled? object
+    end
+
+    def enable!(name)
+      feature = find_by!(name:)
+      feature.update(enabled: true)
+    end
+
+    def add_entity(name:, entity:)
+      feature = find_by!(name:)
+      Entity.create(feature:, flippable: entity)
+    end
+
+    def add_role(name:, class_name:, method:)
+      feature = find_by!(name:)
+      Role.create(feature:, class_name:, method:)
+    end
+
+    def add_key(name:, key:)
+      feature = find_by!(name:)
+      Value.create(feature:, key: key)
+    end
+
+    def find_by(name:)
+      Feature.find_by(name:)
+    end
+
+    def find_by!(name:)
+      find_by(name:) || raise(NoSuchFeauture.new(name))
+    end
   end
 end
