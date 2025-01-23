@@ -2,6 +2,7 @@
 
 require "flipside/version"
 require "flipside/web"
+require "flipside/registered_entity"
 require "models/flipside/feature"
 
 module Flipside
@@ -49,6 +50,33 @@ module Flipside
 
     def find_by!(name:)
       find_by(name:) || raise(NoSuchFeauture.new(name))
+    end
+
+    def register_entity(class_name:, search_by:, display_as:, identified_by: :id)
+      registered_entities[class_name.to_s] = RegisteredEntity.new(
+        class_name:,
+        search_by:,
+        display_as:,
+        identified_by:
+      )
+    end
+
+    def entity_classes
+      registered_entities.keys
+    end
+
+    def search_entity(class_name:, query:)
+      registered_entities.fetch(class_name.to_s).search(query)
+    end
+
+    def find_entity(class_name:, identifier:)
+      registered_entities.fetch(class_name.to_s).find(identifier)
+    end
+
+    private
+
+    def registered_entities
+      @registered_entities ||= {}
     end
   end
 end

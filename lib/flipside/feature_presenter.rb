@@ -23,6 +23,10 @@ class FeaturePresenter
     base_path
   end
 
+  def add_entity_path
+    File.join(href, "add_entity")
+  end
+
   def status
     if feature.active?
       "active"
@@ -61,5 +65,14 @@ class FeaturePresenter
     return false if feature.deactivated_at.nil?
 
     feature.deactivated_at <= Time.now + period
+  end
+
+  def entity_count_str
+    count = feature.entities.count
+    if count.positive?
+      "Enabled for #{count} entities"
+    else
+      ""
+    end
   end
 end

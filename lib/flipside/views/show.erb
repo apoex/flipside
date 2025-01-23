@@ -27,6 +27,7 @@
       </div>
       <div class="mt-2 flex justify-between items-center">
         <span class="font-semibold">Entities:</span>
+        <span><%= feature.entity_count_str %></span>
         <span>
           <%= erb :_modal, locals: {partial: :_add_entity, action: "Add entity", feature:} %>
         </span>

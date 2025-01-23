@@ -115,5 +115,21 @@ module Flipside
         expect(Flipside.enabled?(:some_feature, "bar")).to eq(false)
       end
     end
+
+    describe ".register_entity" do
+      after do
+        Flipside.send(:entities).clear
+      end
+
+      it "can list entity classes" do
+        Flipside.register_entity(class_name: "Foo", search_by: nil, display_as: nil)
+        Flipside.register_entity(class_name: "Bar", search_by: nil, display_as: nil)
+
+        expect(Flipside.entity_classes).to eq(["Foo", "Bar"])
+      end
+
+      it "can list entity classes" do
+      end
+    end
   end
 end

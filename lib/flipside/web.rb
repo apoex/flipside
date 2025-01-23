@@ -1,4 +1,5 @@
 require "sinatra"
+require "uri"
 require "flipside/feature_presenter"
 
 module Flipside
@@ -16,23 +17,37 @@ module Flipside
     end
 
     get "/feature/:name" do
-      halt 404 unless feature
       erb :show, locals: {feature: FeaturePresenter.new(feature, base_path)}
     end
 
     put "/feature/:name/toggle" do
-      halt 404 unless feature
-      if feature.nil?
-        [404, {"Content-Type": "text/plain"}, "This feature does not exist"]
-      elsif feature.update(enabled: !feature.enabled)
-        [204, {"Content-Type": "text/plain"}, '"ok"']
+      content_type :text
+
+      if feature.update(enabled: !feature.enabled)
+        204
       else
-        [422, {"Content-Type": "text/plain"}, "Failed to update feature"]
+        [422, "Failed to update feature"]
       end
     end
 
+    post "/feature/:name/add_entity" do
+      puts params
+      entity = Flipside.find_entity(**params.slice(:class_name, :identifier))
+      Flipside.add_entity(name: params["name"], entity:)
+    end
+
+    get '/search_entity' do
+      class_name = params[:class_name]
+      query = URI.decode_www_form_component(params[:q])
+      result = Flipside.search_entity(class_name:, query:)
+
+      erb :_entity_search_result, locals: {result:, class_name:, query:}
+    end
+
     def feature
-      @feature ||= Flipside::Feature.find_by(name: params["name"])
+      @feature ||= Flipside::Feature.find_by!(name: params["name"])
+    rescue
+      halt 404, "This feature does not exist"
     end
 
     def base_path
