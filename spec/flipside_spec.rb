@@ -81,7 +81,7 @@ module Flipside
         user = User.create!(name: "user")
         admin = User.create!(name: "admin")
 
-        Flipside.add_role(name: :some_feature, class_name: "User", method: "admin?")
+        Flipside.add_role(name: :some_feature, class_name: "User", method_name: "admin?")
 
         expect(Flipside.enabled?(:some_feature, user)).to eq(false)
         expect(Flipside.enabled?(:some_feature, admin)).to eq(true)

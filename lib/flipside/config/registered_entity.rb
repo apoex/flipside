@@ -1,15 +1,7 @@
+require "flipside/search_result"
+
 module Flipside
   class RegisteredEntity
-    class Result
-      attr_reader :entity, :display_as, :identifier
-
-      def initialize(entity, display_as, identifier)
-        @entity = entity
-        @display_as = display_as
-        @identifier = identifier
-      end
-    end
-
     attr_reader :class_name, :search_by, :display_as, :identified_by
 
     def initialize(class_name:, identified_by: :id, search_by: nil, display_as: nil)
@@ -21,7 +13,7 @@ module Flipside
 
     def search(query)
       Array(lookup_proc.call(query)).map do |entity|
-        Result.new(
+        SearchResult.new(
           entity,
           display(entity),
           entity.public_send(identified_by)
@@ -58,6 +50,8 @@ module Flipside
           display_as
         when Symbol
           ->(entity) { entity.public_send(display_as) }
+        when String
+          ->(entity) { display_as }
         else
           ->(entity) { entity.public_send(identified_by) }
         end

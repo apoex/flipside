@@ -2,12 +2,14 @@
 
 require "flipside/version"
 require "flipside/web"
-require "flipside/registered_entity"
+require "flipside/config/entities"
+require "flipside/config/roles"
 require "models/flipside/feature"
 
 module Flipside
-  # Add class methods flipside_enity and flipside_role to models
-  #
+  extend Config::Entities
+  extend Config::Roles
+
   class Error < StandardError; end
 
   class NoSuchFeauture < Error
@@ -31,17 +33,27 @@ module Flipside
 
     def add_entity(name:, entity:)
       feature = find_by!(name:)
-      Entity.create(feature:, flippable: entity)
+      Entity.find_or_create_by(feature:, flippable: entity)
     end
 
-    def add_role(name:, class_name:, method:)
+    def remove_entity(name:, entity_id:)
       feature = find_by!(name:)
-      Role.create(feature:, class_name:, method:)
+      feature.entities.find_by(id: entity_id)&.destroy
+    end
+
+    def add_role(name:, class_name:, method_name:)
+      feature = find_by!(name:)
+      Role.find_or_create_by(feature:, class_name:, method: method_name)
+    end
+
+    def remove_role(name:, role_id:)
+      feature = find_by!(name:)
+      feature.roles.find_by(id: role_id)&.destroy
     end
 
     def add_key(name:, key:)
       feature = find_by!(name:)
-      Key.create(feature:, key: key)
+      Key.find_or_create_by(feature:, key: key)
     end
 
     def find_by(name:)
@@ -50,39 +62,6 @@ module Flipside
 
     def find_by!(name:)
       find_by(name:) || raise(NoSuchFeauture.new(name))
-    end
-
-    def register_entity(class_name:, search_by:, display_as:, identified_by: :id)
-      registered_entities[class_name.to_s] = RegisteredEntity.new(
-        class_name:,
-        search_by:,
-        display_as:,
-        identified_by:
-      )
-    end
-
-    def entity_classes
-      registered_entities.keys
-    end
-
-    def search_entity(class_name:, query:)
-      registered_entities.fetch(class_name.to_s).search(query)
-    end
-
-    def find_entity(class_name:, identifier:)
-      registered_entities.fetch(class_name.to_s).find(identifier)
-    end
-
-    def display_entity(entity)
-      registered_entities
-        .fetch(entity.class.to_s)
-        .display(entity)
-    end
-
-    private
-
-    def registered_entities
-      @registered_entities ||= {}
     end
   end
 end

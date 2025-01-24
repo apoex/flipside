@@ -4,7 +4,7 @@ class FeaturePresenter
   extend Forwardable
   attr_reader :feature, :base_path
 
-  def_delegators :@feature, :name, :description, :enabled, :entities
+  def_delegators :@feature, :name, :description, :enabled, :entities, :roles
 
   def initialize(feature, base_path)
     @feature = feature
@@ -37,6 +37,14 @@ class FeaturePresenter
 
   def roles_path
     File.join(href, "roles")
+  end
+
+  def add_role_path
+    File.join(href, "add_role")
+  end
+
+  def remove_role_path
+    File.join(href, "remove_role")
   end
 
   def status
