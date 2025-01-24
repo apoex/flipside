@@ -4,6 +4,27 @@ require "flipside"
 
 module Flipside
   RSpec.describe "Flipside" do
+    let(:user_class) do
+      Class.new(ActiveRecord::Base) do
+        has_many :features, class_name: "Flipside::EntityFeature", dependent: :destroy
+
+        def admin?
+          name == "admin"
+        end
+      end
+    end
+
+    before do
+      stub_const("User", user_class)
+      ActiveRecord::Base.connection.create_table :users, force: true do |t|
+        t.string(:name)
+      end
+    end
+
+    after do
+      ActiveRecord::Base.connection.drop_table(:users, if_exists: true)
+    end
+
     it "has a version number" do
       expect(Flipside::VERSION).not_to be nil
     end
@@ -43,23 +64,6 @@ module Flipside
     end
 
     describe ".add_entity" do
-      let(:user_class) do
-        Class.new(ActiveRecord::Base) do
-          has_many :features, class_name: "Flipside::EntityFeature", dependent: :destroy
-        end
-      end
-
-      before do
-        stub_const("User", user_class)
-        ActiveRecord::Base.connection.create_table :users, force: true do |t|
-          t.string(:name)
-        end
-      end
-
-      after do
-        ActiveRecord::Base.connection.drop_table(:users, if_exists: true)
-      end
-
       it "adds an entity association" do
         feature = Feature.create!(name: "some_feature", enabled: false)
         user = User.create(name: "user")
@@ -72,27 +76,6 @@ module Flipside
     end
 
     describe ".add_role" do
-      let(:user_class) do
-        Class.new(ActiveRecord::Base) do
-          has_many :features, class_name: "Flipside::EntityFeature", dependent: :destroy
-
-          def admin?
-            name == "admin"
-          end
-        end
-      end
-
-      before do
-        stub_const("User", user_class)
-        ActiveRecord::Base.connection.create_table :users, force: true do |t|
-          t.string(:name)
-        end
-      end
-
-      after do
-        ActiveRecord::Base.connection.drop_table(:users, if_exists: true)
-      end
-
       it "adds a role association" do
         Feature.create!(name: "some_feature", enabled: false)
         user = User.create!(name: "user")
@@ -118,7 +101,7 @@ module Flipside
 
     describe ".register_entity" do
       after do
-        Flipside.send(:entities).clear
+        Flipside.send(:registered_entities).clear
       end
 
       it "can list entity classes" do
@@ -127,8 +110,18 @@ module Flipside
 
         expect(Flipside.entity_classes).to eq(["Foo", "Bar"])
       end
+    end
+
+    describe ".display_entity" do
+      after do
+        Flipside.send(:registered_entities).clear
+      end
 
       it "can list entity classes" do
+        Flipside.register_entity(class_name: "User", search_by: nil, display_as: :name)
+        user = User.new(name: "John Doe")
+
+        expect(Flipside.display_entity(user)).to eq("John Doe")
       end
     end
   end

@@ -29,13 +29,22 @@
         <span class="font-semibold">Entities:</span>
         <span><%= feature.entity_count_str %></span>
         <span>
-          <%= erb :_modal, locals: {partial: :_add_entity, action: "Add entity", feature:} %>
+          <a
+            href="<%= feature.entities_path %>"
+            class="p-2 rounded-lg text-xl text-slate-400 bg-blue-900 border border-blue-950 hover:bg-blue-800" >
+            Edit
+          </a>
         </span>
       </div>
       <div class="mt-2 flex justify-between items-center">
         <span class="font-semibold">Roles:</span>
+        <span><%= feature.role_count_str %></span>
         <span>
-          <%= erb :_modal, locals: {partial: :_add_role, action: "Add role", feature:} %>
+          <a
+            href="<%= feature.roles_path %>"
+            class="p-2 rounded-lg text-xl text-slate-400 bg-blue-900 border border-blue-950 hover:bg-blue-800" >
+            Edit
+          </a>
         </span>
       </div>
     </div>

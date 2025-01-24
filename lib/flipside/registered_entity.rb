@@ -23,7 +23,7 @@ module Flipside
       Array(lookup_proc.call(query)).map do |entity|
         Result.new(
           entity,
-          display_proc.call(entity),
+          display(entity),
           entity.public_send(identified_by)
         )
       end
@@ -31,6 +31,10 @@ module Flipside
 
     def find(identifier)
       class_name.constantize.find_by!("#{identified_by}": identifier)
+    end
+
+    def display(entity)
+      display_proc.call(entity)
     end
 
     private

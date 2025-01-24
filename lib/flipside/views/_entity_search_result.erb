@@ -1,9 +1,9 @@
 <% if result.present? %>
   <% result.map do |r| %>
-    <option value="<%= r.identifier %>" class="font-red-300 p-2 rounded-md hover:bg-slate-300">
+    <option value="<%= r.identifier %>" class="text-slate-800 p-2 rounded-md hover:bg-slate-300">
     <%= r.display_as %>
     </option>
   <% end %>
 <% else %>
-  <span>No <%= class_name %> matched "<%= query %>"</span>
+  <div class="text-slate-800 p-2">No <%= class_name %> matched "<%= query %>"</div>
 <% end %>

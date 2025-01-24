@@ -30,10 +30,8 @@ module Flipside
       end
     end
 
-    post "/feature/:name/add_entity" do
-      puts params
-      entity = Flipside.find_entity(**params.slice(:class_name, :identifier))
-      Flipside.add_entity(name: params["name"], entity:)
+    get "/feature/:name/entities" do
+      erb :feature_entities, locals: {feature: FeaturePresenter.new(feature, base_path)}
     end
 
     get '/search_entity' do
@@ -42,6 +40,23 @@ module Flipside
       result = Flipside.search_entity(class_name:, query:)
 
       erb :_entity_search_result, locals: {result:, class_name:, query:}
+    end
+
+    post "/feature/:name/add_entity" do
+      name, class_name, identifier = params.values_at("name", "class_name", "identifier")
+
+      entity = Flipside.find_entity(class_name:, identifier:)
+      Flipside.add_entity(name: , entity:)
+      redirect to("/feature/#{name}/entities"), 303
+    end
+
+    post "/feature/:name/remove_entity" do
+      Flipside::Entity.find(params["entity_id"]).destroy
+      redirect to("/feature/#{params["name"]}/entities"), 303
+    end
+
+    get "/feature/:name/roles" do
+      erb :feature_roles, locals: {feature: FeaturePresenter.new(feature, base_path)}
     end
 
     def feature

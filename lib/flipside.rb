@@ -73,6 +73,12 @@ module Flipside
       registered_entities.fetch(class_name.to_s).find(identifier)
     end
 
+    def display_entity(entity)
+      registered_entities
+        .fetch(entity.class.to_s)
+        .display(entity)
+    end
+
     private
 
     def registered_entities

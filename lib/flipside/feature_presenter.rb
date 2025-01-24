@@ -4,7 +4,7 @@ class FeaturePresenter
   extend Forwardable
   attr_reader :feature, :base_path
 
-  def_delegators :@feature, :name, :description, :enabled
+  def_delegators :@feature, :name, :description, :enabled, :entities
 
   def initialize(feature, base_path)
     @feature = feature
@@ -23,8 +23,20 @@ class FeaturePresenter
     base_path
   end
 
+  def entities_path
+    File.join(href, "entities")
+  end
+
   def add_entity_path
     File.join(href, "add_entity")
+  end
+
+  def remove_entity_path
+    File.join(href, "remove_entity")
+  end
+
+  def roles_path
+    File.join(href, "roles")
   end
 
   def status
@@ -69,8 +81,21 @@ class FeaturePresenter
 
   def entity_count_str
     count = feature.entities.count
-    if count.positive?
+    if count == 1
+      "Enabled for one entity"
+    elsif count.positive?
       "Enabled for #{count} entities"
+    else
+      ""
+    end
+  end
+
+  def role_count_str
+    count = feature.roles.count
+    if count == 1
+      "Enabled for one role"
+    elsif count.positive?
+      "Enabled for #{count} roles"
     else
       ""
     end
