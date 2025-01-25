@@ -19,11 +19,15 @@
       </div>
       <div class="mt-2 flex justify-between items-center">
         <span class="font-semibold">Active From:</span>
-        <span><%= feature.activated_at || "-" %></span>
+        <span>
+          <%= erb :_datetime_modal, locals: {feature:, attribute: :activated_at} %>
+        </span>
       </div>
       <div class="mt-2 flex justify-between items-center">
         <span class="font-semibold">Active Until:</span>
-        <span><%= feature.deactivated_at || "-" %></span>
+        <span>
+          <%= erb :_datetime_modal, locals: {feature:, attribute: :deactivated_at} %>
+        </span>
       </div>
       <div class="mt-2 flex justify-between items-center">
         <span class="font-semibold">Entities:</span>

@@ -15,7 +15,7 @@ class FeaturePresenter
     File.join(base_path, "feature", name)
   end
 
-  def toggle_href
+  def toggle_path
     File.join(href, "toggle")
   end
 

@@ -30,6 +30,12 @@ module Flipside
       end
     end
 
+    put "/feature/:name" do
+      kwargs = params.slice("activated_at", "deactivated_at")
+      feature.update(**kwargs)
+      redirect to("/feature/#{params["name"]}"), 303
+    end
+
     get "/feature/:name/entities" do
       erb :feature_entities, locals: {feature: FeaturePresenter.new(feature, base_path)}
     end
