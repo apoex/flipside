@@ -88,17 +88,6 @@ module Flipside
       end
     end
 
-    describe ".add_key" do
-      it "adds a value" do
-        Feature.create!(name: "some_feature", enabled: false)
-
-        Flipside.add_key(name: :some_feature, key: "foo")
-
-        expect(Flipside.enabled?(:some_feature, "foo")).to eq(true)
-        expect(Flipside.enabled?(:some_feature, "bar")).to eq(false)
-      end
-    end
-
     describe ".register_entity" do
       after do
         Flipside.send(:registered_entities).clear

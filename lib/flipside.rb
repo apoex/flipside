@@ -51,11 +51,6 @@ module Flipside
       feature.roles.find_by(id: role_id)&.destroy
     end
 
-    def add_key(name:, key:)
-      feature = find_by!(name:)
-      Key.find_or_create_by(feature:, key: key)
-    end
-
     def find_by(name:)
       Feature.find_by(name:)
     end

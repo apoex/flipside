@@ -3,14 +3,12 @@
 require "models/flipside/checks"
 require "models/flipside/entities"
 require "models/flipside/roles"
-require "models/flipside/keys"
 
 module Flipside
   class Feature < ::ActiveRecord::Base
     extend Checks
     include Entities
     include Roles
-    include Keys
 
     self.table_name = "flipside_features"
 
