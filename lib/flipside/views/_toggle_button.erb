@@ -2,11 +2,11 @@
 <% translate = feature.enabled ? "translate-x-5" : "translate-x-0" %>
 
 <button type="button"
-        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent <%= color %> transition-colors duration-200 ease-in-out"
+        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent <%= color %>"
         data-controller="toggle"
         data-action="click->toggle#switch:prevent"
         data-toggle-url-value="<%= feature.toggle_href %>"
         data-toggle-enabled-value="<%= feature.enabled %>"
         >
-        <span aria-hidden="true" class="pointer-events-none inline-block size-5 <%= translate %> transform rounded-full bg-white shadow transition duration-200 ease-in-out"></span>
+        <span aria-hidden="true" class="pointer-events-none inline-block size-5 <%= translate %> transform rounded-full bg-white shadow"></span>
 </button>
