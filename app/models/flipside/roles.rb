@@ -10,6 +10,8 @@ module Flipside
     end
 
     def has_role?(object)
+      return false unless object
+
       methods = lookup_methods_for(object)
       methods.any? { |method| object.public_send(method) }
     end

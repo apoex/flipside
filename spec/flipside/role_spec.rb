@@ -66,5 +66,11 @@ module Flipside
 
       expect(feature.enabled?(special_user)).to eq(false)
     end
+
+    it "is not enabled when no argument is provided" do
+      Role.create(feature:, class_name: "User", method: "to_s")
+
+      expect(feature.enabled?).to eq(false)
+    end
   end
 end
