@@ -41,6 +41,27 @@ Flipside::Feature.create(name: "MyFeature", description: "Some optional descript
 ```
 
 By default features are turned off. If you would like it turned on from the beginning you could pass in `enabled: true`.
+```ruby
+Flipside::Feature.create(name: "MyFeature", enabled: true)
+```
+
+Features can be active during a given period. Set `activated_at` and/or `deactivated_at` to define this period. A feature must be active to be enabled.
+```ruby
+Flipside::Feature.create(name: "MyFeature", activated_at: 1.week.from_now, deactivated_at: 2.weeks.from_now)
+```
+
+Features can be enabled for a certain record, typically a certain record or organization. This records are called entities. To enable a feature for a given record use.
+```ruby
+user = User.first
+Flipside.add_entity(name: "MyFeature", user)
+```
+
+Features can be enabled for records responding true to a certain method. This is called a "role". Given that User records have an admin? method. A feature can then be enabled
+for all users how are admins.
+```ruby
+Flipside.add_role(name: "MyFeature", class_name:, :admin?:)
+```
+
 
 2. Checking Feature Status
 
