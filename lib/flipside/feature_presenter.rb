@@ -87,6 +87,14 @@ class FeaturePresenter
     feature.deactivated_at <= Time.now + period
   end
 
+  def status_title
+    if activates_soon?
+      "Activates at: #{activated_at}"
+    elsif deactivates_soon?
+      "deactivates at: #{deactivated_at}"
+    end
+  end
+
   def entity_count_str
     count = feature.entities.count
     if count == 1
