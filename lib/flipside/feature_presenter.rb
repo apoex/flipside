@@ -12,7 +12,7 @@ class FeaturePresenter
   end
 
   def href
-    File.join(base_path, "feature", name)
+    File.join(base_path, "feature", ERB::Util.url_encode(name))
   end
 
   def toggle_path
