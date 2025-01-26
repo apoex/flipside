@@ -25,10 +25,6 @@ module Flipside
       ActiveRecord::Base.connection.drop_table(:users, if_exists: true)
     end
 
-    it "has a version number" do
-      expect(Flipside::VERSION).not_to be nil
-    end
-
     describe ".enabled?" do
       it "returns false when feature does not exist" do
         expect(Flipside.enabled?(:non_existing)).to eq(false)
@@ -85,6 +81,25 @@ module Flipside
 
         expect(Flipside.enabled?(:some_feature, user)).to eq(false)
         expect(Flipside.enabled?(:some_feature, admin)).to eq(true)
+      end
+    end
+
+    context "when multiple arguments are passed in" do
+      it "returns true if any of them is enabled" do
+        feature = Feature.create!(name: "some_feature", enabled: false)
+        user1 = User.create(name: "user")
+        user2 = User.create(name: "user")
+        Flipside.add_entity(name: :some_feature, entity: user2)
+
+        expect(Flipside.enabled?(:some_feature, user1, user2)).to eq(true)
+      end
+
+      it "return false when all are disabled" do
+        feature = Feature.create!(name: "some_feature", enabled: false)
+        user1 = User.create(name: "user")
+        user2 = User.create(name: "user")
+
+        expect(Flipside.enabled?(:some_feature, user1, user2)).to eq(false)
       end
     end
 
