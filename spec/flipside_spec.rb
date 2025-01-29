@@ -41,6 +41,21 @@ module Flipside
 
         expect(Flipside.enabled?(:some_feature)).to eq(true)
       end
+
+      context "when create_missing_features is true" do
+        around do |example|
+          current = Flipside.create_missing_features
+          Flipside.create_missing_features = true
+          example.run
+          Flipside.create_missing_features = current
+        end
+
+        it "creates a new feature when feature does not exist" do
+          expect {
+            Flipside.enabled? :missing
+          }.to change(Flipside::Feature, :count).by(1)
+        end
+      end
     end
 
     describe ".enabled!" do
@@ -56,6 +71,29 @@ module Flipside
         expect {
           Flipside.enable! :non_existing
         }.to raise_error(NoSuchFeauture)
+      end
+    end
+
+    describe ".find_by" do
+      it "finds a feature by name" do
+        feature1 = Feature.create!(name: "feature1")
+        feature2 = Feature.create!(name: "feature2")
+        feature3 = Feature.create!(name: "feature3")
+
+        expect(Flipside.find_by(name: "feature2")).to eq(feature2)
+      end
+
+      it "returns nil when feature does not exist" do
+        feature = Flipside.find_by(name: "non_existing", create_on_missing: false)
+
+        expect(feature).to eq(nil)
+      end
+
+      it "adds a description from where the feature was found" do
+        feature = Flipside.find_by(name: "missing_feature", create_on_missing: true)
+
+        expect(feature).to_not be_nil
+        expect(feature.description).to match(/Created from /)
       end
     end
 
