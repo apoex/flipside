@@ -19,11 +19,12 @@ module Flipside
   end
 
   class << self
-    def enabled?(name, object = nil)
+    def enabled?(name, *objects)
       feature = find_by(name:)
       return false unless feature
 
-      feature.enabled? object
+      objects << nil if objects.empty?
+      objects.any? { |object| feature.enabled? object }
     end
 
     def enable!(name)
