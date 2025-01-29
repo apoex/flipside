@@ -58,7 +58,7 @@ Flipside::Feature.create(
 )
 ```
 
-Features can be enabled for a certain record, typically a certain record or organization. This records are called entities. To enable a feature for a given record use.
+Features can be enabled for a certain record, typically a certain user or organization. This records are called entities. To enable a feature for a given record use `.add_entity`:
 ```ruby
 user = User.first
 Flipside.enabled? user # => false
@@ -67,7 +67,7 @@ Flipside.enabled? user # => true
 ```
 
 Features can be enabled for records responding true to a certain method. This is called a "role". Given that User records have an admin? method. A feature can then be enabled
-for all users how are admins.
+for all users how are admins, using the `.add_role` method:
 ```ruby
 user1 = User.new(admin: false)
 user2 = User.new(admin: true)
@@ -104,12 +104,31 @@ Flipside comes with a sinatra web ui to mange feature flags. To mount this sinat
 ```ruby
 mount Flipside::Web, at: '/flipside'
 ```
+Note: you probably want to wrap this inside a constraints block to provide some authentication.
 
-Note: you also probably want to wrap this inside a constraints block to provide some authentication.
-
+![UI](/features.png)
 
 
 ### Configuration
+
+Entities can be added to a feature by searching for records and adding them.
+![Start screen](/add_entity.png)
+
+To make this work, some configuration is required. Use the class method `Flipside.register_entity` for this.
+```ruby
+Flipside.register_entity(
+  class_name: "User",
+  search_by: :name,
+  display_as: :name,
+  identified_by: :id
+)
+```
+Typically this should be configured in an initializer file.
+
+The `.register_entity` method should be called once for each class that may be used as feature enablers.
+The `search_by` keyword argument, which may be a symbol or a proc, dictates how records are found from searching in the ui. When a symbol is given, then searches with an exact match on the corresponding attribute are returned. E.g. `User.where(name: query)`.
+
+TODO
 
 ## Development
 
