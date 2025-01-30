@@ -1,3 +1,8 @@
+## [0.2.1] - 2025-01-30
+
+- Option to create missing features
+- Option to set link back to main application
+
 ## [0.2.0] - 2025-01-29
 
 - Support checking multiple objects at once
