@@ -33,7 +33,7 @@ This will create a migration file. Run the migration, to add the flipside tables
 
 ## Usage
 
-1. Defining Features
+### Defining Features
 
 Features are created by running this (in a console or from code):
 ```ruby
@@ -43,13 +43,14 @@ Flipside::Feature.create(
 )
 ```
 
-By default features are turned off. If you would like it turned on from the beginning you could pass in `enabled: true`.
+By default features are turned off. If you would like it turned on from the get go you could pass in `enabled: true`.
 ```ruby
 Flipside::Feature.create(name: "MyFeature", enabled: true)
 ```
 
 Features can be active during a given period. Set `activated_at` and/or `deactivated_at` to define this period.
 Note: A feature is always disabled outside of the active period.
+Note: A nil value means that its active. I.e. `activated_at = nil` means active from the start, `deactivated_at = nil` means never deactivates.
 ```ruby
 Flipside::Feature.create(
   name: "MyFeature",
@@ -58,30 +59,7 @@ Flipside::Feature.create(
 )
 ```
 
-Features can be enabled for a certain record, typically a certain user or organization. This records are called entities. To enable a feature for a given record use `.add_entity`:
-```ruby
-user = User.first
-Flipside.enabled? user # => false
-Flipside.add_entity(name: "MyFeature", user)
-Flipside.enabled? user # => true
-```
-
-Features can be enabled for records responding true to a certain method. This is called a "role". Given that User records have an admin? method. A feature can then be enabled
-for all users how are admins, using the `.add_role` method:
-```ruby
-user1 = User.new(admin: false)
-user2 = User.new(admin: true)
-Flipside.add_role(
-  name: "MyFeature",
-  class_name: "User",
-  method_name: :admin?
-)
-Flipside.enabled? user1 # => false
-Flipside.enabled? user2 # => true
-```
-
-
-2. Checking Feature Status
+### Checking Feature Status
 
 #### Globally
 
@@ -98,6 +76,31 @@ Check if a feature is enabled for a specific record (e.g. a user):
 ```ruby
 Flipside.enabled? "MyFeature", user
 ```
+
+### Enabling features for specific records
+
+Features can be enabled for a certain record, typically a certain user or organization. These records are called entities. To enable a feature for a given record use `.add_entity`:
+```ruby
+user = User.first
+Flipside.enabled? "MyFeature", user # => false
+Flipside.add_entity(name: "MyFeature", user)
+Flipside.enabled? "MyFeature", user # => true
+```
+
+Features can be enabled for records responding true to a certain method. This is called a "role". Given that User records have an admin? method. A feature can then be enabled
+for all users how are admins, using the `.add_role` method:
+```ruby
+user1 = User.new(admin: false)
+user2 = User.new(admin: true)
+Flipside.add_role(
+  name: "MyFeature",
+  class_name: "User",
+  method_name: :admin?
+)
+Flipside.enabled? "MyFeature", user1 # => false
+Flipside.enabled? "MyFeature", user2 # => true
+```
+
 
 ## UI
 Flipside comes with a sinatra web ui to mange feature flags. To mount this sinatra app in Rails add the following to your routes.rb file.
@@ -125,7 +128,7 @@ Flipside.register_entity(
 ```
 Typically this should be configured in an initializer file.
 
-The `.register_entity` method should be called once for each class that may be used as feature enablers.
+The `.register_entity` method should be called once for each class that may be used as a feature enabler.
 The `search_by` keyword argument, which may be a symbol or a proc, dictates how records are found from searching in the ui. When a symbol is given, then searches with an exact match on the corresponding attribute are returned. E.g. `User.where(name: query)`.
 
 TODO
