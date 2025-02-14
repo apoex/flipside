@@ -88,7 +88,7 @@ Flipside.enabled? "MyFeature", user # => true
 ```
 
 Features can be enabled for records responding true to a certain method. This is called a "role". Given that User records have an admin? method. A feature can then be enabled
-for all users how are admins, using the `.add_role` method:
+for all users who are admins, using the `.add_role` method:
 ```ruby
 user1 = User.new(admin: false)
 user2 = User.new(admin: true)
@@ -114,8 +114,32 @@ Note: you probably want to wrap this inside a constraints block to provide some 
 
 ### Configuration
 
-Entities can be added to a feature by searching for records and adding them.
-![Start screen](/add_entity.png)
+The Flipside UI can be configured by calling some class methods on `Flipside` (see below).
+
+`ui_back_path` is used to set a path to return to from the Flipside UI. If this is set, then the UI shows a "Back" button,
+targeting this path/url. By default no back button is shown.
+
+
+If `create_missing_features` is set to true, then features will automatically be created, whenever a check for an unknown feature is done.
+This can be a convenient way of makes features "show up" in the Flipside UI. However, the description will not reveal much about what this features does.
+(it will simply point to the place in the code where this check was done). So these features should be manually updated with a better description.
+By default, features are not added and code like `Flipside.enabled? "Some unknown feature"` will simply return `false`.
+
+Typically this should be configured in an initializer file.
+
+```ruby
+# config/initializers/flipside.rb
+require 'flipside'
+
+Flipside.ui_back_path = "/"
+Flipside.create_missing_features = true
+```
+
+#### Entities
+
+Entities can be added to a feature by searching for records.
+
+![Add an entity](/add_entity.png)
 
 To make this work, some configuration is required. Use the class method `Flipside.register_entity` for this.
 ```ruby
@@ -126,12 +150,59 @@ Flipside.register_entity(
   identified_by: :id
 )
 ```
-Typically this should be configured in an initializer file.
 
 The `.register_entity` method should be called once for each class that may be used as a feature enabler.
-The `search_by` keyword argument, which may be a symbol or a proc, dictates how records are found from searching in the ui. When a symbol is given, then searches with an exact match on the corresponding attribute are returned. E.g. `User.where(name: query)`.
+The `search_by` keyword argument, which may be a `Symbol` or a `Proc`, dictates how records are found from searching in the ui.
+When a `Symbol` is given, then entities with an exact match on the corresponding attribute are returned. E.g. `User.where(name: query)`.
+When a `Proc` is given, then this `Proc` is called with the search string and is expected to return an object responding to `to_a` (e.g. an AR collection).
+This gives you the flexibility to decide how to search for entities. For example, to search for users with matching first name or last name or an email
+starting with _query_, something like this could be used.
+```ruby
+Flipside.register_entity(
+  class_name: "User",
+  search_by: ->(str) { User.where("lower(first_name) = :name OR lower(last_name) = :name or email LIKE :str", name: str.downcase, str: "#{str}%") },
+)
 
-TODO
+```
+
+The `identified_by` keyword argument, sets the column used as primary key for the corresponding table. This defaults to `:id` and typically does need to be change.
+Currently composite keys are not supported.
+
+The `display_as` keyword argument, is used to configure how these entities show up in the combobox. When set to a `Symbol`, then this value is sent to the corresponding entity.
+For example, given the following setup. Users will be displayed with first name and last name:
+```ruby
+class User < ApplicationRecord
+  def name
+    [first_name, last_name].compact.map(&:capitalize).join(" ")
+  end
+end
+
+Flipside.register_entity(
+  class_name: "User",
+  display_as: :name,
+)
+```
+
+When a `Proc` is given, then it is expected to take an entity as input and return a string used for displaying the entity. The config above could then instead be done using:
+```ruby
+Flipside.register_entity(
+  class_name: "User",
+  display_as: ->(user) { [user.first_name, user.last_name].compact.map(&:capitalize).join(" ") }
+)
+```
+
+#### Roles
+
+Features can be enabled for certain roles, by searching for roles (by method name).
+
+![Add a role](/add_role.png)
+
+This is configured by calling the class method `Flipside.register_role` for each role to be added.
+Note a role consists of a class and a corresponding instance method.
+```ruby
+Flipside.register_role(class_name: "User", method_name: :admin?)
+Flipside.register_role(class_name: "User", method_name: :awesome?)
+```
 
 ## Development
 
