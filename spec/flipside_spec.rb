@@ -65,6 +65,45 @@ module Flipside
           }.to change(Flipside::Feature, :count).by(1)
         end
       end
+
+      context "when default_object is set" do
+        let(:feature) { Feature.create!(name: "some_feature") }
+
+        around do |example|
+          current = Flipside.default_object
+          example.run
+          Flipside.default_object = current
+        end
+
+        before do
+          allow(Flipside).to receive(:find_by).and_return(feature)
+          allow(feature).to receive(:enabled?)
+        end
+
+        it "checks if feature is enabled for default_object" do
+          Flipside.default_object = "foobar"
+
+          Flipside.enabled? :some_feature
+
+          expect(feature).to have_received(:enabled?).with("foobar")
+        end
+
+        it "check if feature is enabled for returned value of default_object proc" do
+          Flipside.default_object = -> { "foobar" }
+
+          Flipside.enabled? :some_feature
+
+          expect(feature).to have_received(:enabled?).with("foobar")
+        end
+
+        it "does not consider default_object when an argument is given" do
+          Flipside.default_object = "foobar"
+
+          Flipside.enabled? :some_feature, "barfoo"
+
+          expect(feature).to_not have_received(:enabled?).with("foobar")
+        end
+      end
     end
 
     describe ".enabled!" do
