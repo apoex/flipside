@@ -74,6 +74,24 @@ module Flipside
       end
     end
 
+    describe ".disabled?" do
+      it "returns true when feature does not exist" do
+        expect(Flipside.disabled?(:non_existing)).to eq(true)
+      end
+
+      it "returns true when disabled" do
+        Feature.create!(name: "some_feature", enabled: false)
+
+        expect(Flipside.disabled?(:some_feature)).to eq(true)
+      end
+
+      it "returns false when enabled" do
+        Feature.create!(name: "some_feature", enabled: true)
+
+        expect(Flipside.disabled?(:some_feature)).to eq(false)
+      end
+    end
+
     describe ".find_by" do
       it "finds a feature by name" do
         feature1 = Feature.create!(name: "feature1")

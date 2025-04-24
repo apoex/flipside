@@ -29,6 +29,10 @@ module Flipside
       objects.any? { |object| feature.enabled? object }
     end
 
+    def disabled?(...)
+      !enabled?(...)
+    end
+
     def enable!(name)
       feature = find_by!(name:)
       feature.update(enabled: true)
@@ -64,11 +68,15 @@ module Flipside
       find_by(name:) || raise(NoSuchFeauture.new(name))
     end
 
+    def create(name:, description: nil)
+      Feature.create(name: name, description: description)
+    end
+
     def create_missing(name)
       trace = caller.find { |trace| !trace.start_with? __FILE__ }
       source, line, _ = trace.split(":")
       source = [source, line].join(":") if line.match?(/\d+/)
-      Feature.create(name:, description: "Created from #{source}")
+      create(name:, description: "Created from #{source}")
     end
   end
 end
