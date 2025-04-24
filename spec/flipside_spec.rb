@@ -42,6 +42,15 @@ module Flipside
         expect(Flipside.enabled?(:some_feature)).to eq(true)
       end
 
+      it "returns true when enabled for at least on entity" do
+        Feature.create!(name: "some_feature", enabled: false)
+        user1 = User.create(name: "user1")
+        user2 = User.create(name: "user2")
+        Flipside.add_entity(name: :some_feature, entity: user2)
+
+        expect(Flipside.enabled?(:some_feature, user1, user2)).to eq(true)
+      end
+
       context "when create_missing_features is true" do
         around do |example|
           current = Flipside.create_missing_features
@@ -71,6 +80,49 @@ module Flipside
         expect {
           Flipside.enable! :non_existing
         }.to raise_error(NoSuchFeauture)
+      end
+    end
+
+    describe ".disabled?" do
+      it "returns true when feature does not exist" do
+        expect(Flipside.disabled?(:non_existing)).to eq(true)
+      end
+
+      it "returns true when disabled" do
+        Feature.create!(name: "some_feature", enabled: false)
+
+        expect(Flipside.disabled?(:some_feature)).to eq(true)
+      end
+
+      it "returns false when enabled" do
+        Feature.create!(name: "some_feature", enabled: true)
+
+        expect(Flipside.disabled?(:some_feature)).to eq(false)
+      end
+
+      it "returns false when enabled" do
+        Feature.create!(name: "some_feature", enabled: true)
+
+        expect(Flipside.disabled?(:some_feature)).to eq(false)
+      end
+
+      context "when multiple entities are checked" do
+        let(:user1) { User.create(name: "user1") }
+        let(:user2) { User.create(name: "user2") }
+
+        before do
+          Feature.create!(name: "some_feature", enabled: false)
+        end
+
+        it "returns true when feature is disabled for all entities" do
+          expect(Flipside.disabled?(:some_feature, user1, user2)).to eq(true)
+        end
+
+        it "returns false when feature is enabled for one entity" do
+          Flipside.add_entity(name: :some_feature, entity: user1)
+
+          expect(Flipside.disabled?(:some_feature, user1, user2)).to eq(false)
+        end
       end
     end
 
