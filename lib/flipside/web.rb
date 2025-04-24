@@ -20,6 +20,12 @@ module Flipside
       erb :show, locals: {feature: FeaturePresenter.new(feature, base_path)}
     end
 
+    put "/feature/:name" do
+      feature.update(params.slice("description"))
+
+      redirect to(request.path_info), 303
+    end
+
     put "/feature/:name/toggle" do
       content_type :text
 
