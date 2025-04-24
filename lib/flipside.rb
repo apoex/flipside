@@ -25,7 +25,7 @@ module Flipside
       feature = find_by(name:)
       return false unless feature
 
-      objects << nil if objects.empty?
+      objects = [default_object] if objects.empty?
       objects.any? { |object| feature.enabled? object }
     end
 
