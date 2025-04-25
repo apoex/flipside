@@ -37,22 +37,22 @@ This will create a migration file. Run the migration, to add the flipside tables
 
 Features are created by running this (in a console or from code):
 ```ruby
-Flipside::Feature.create(
+Flipside.create(
   name: "MyFeature",
   description: "Some optional description about what this feature do"
 )
 ```
 
-By default features are turned off. If you would like it turned on from the get go you could pass in `enabled: true`.
+By default features are turned off. If we would like it turned on from the get go we could pass in `enabled: true`.
 ```ruby
-Flipside::Feature.create(name: "MyFeature", enabled: true)
+Flipside.create(name: "MyFeature", enabled: true)
 ```
 
 Features can be active during a given period. Set `activated_at` and/or `deactivated_at` to define this period.
 Note: A feature is always disabled outside of the active period.
 Note: A nil value means that its active. I.e. `activated_at = nil` means active from the start, `deactivated_at = nil` means never deactivates.
 ```ruby
-Flipside::Feature.create(
+Flipside.create(
   name: "MyFeature",
   activated_at: 1.week.from_now,
   deactivated_at: 2.weeks.from_now
@@ -69,12 +69,22 @@ Check if a feature is enabled globally:
 Flipside.enabled? "MyFeature"
 ```
 
+We can also check if a feature is disabled:
+```ruby
+Flipside.disabled? "MyFeature"
+```
+
 #### For a Specific Record
 
 Check if a feature is enabled for a specific record (e.g. a user):
 
 ```ruby
 Flipside.enabled? "MyFeature", user
+```
+
+We can also check multiple records. `.enabled?` will return `true` if any of them have the feature enabled:
+```ruby
+Flipside.enabled? "MyFeature", user, company, location
 ```
 
 ### Enabling features for specific records
@@ -99,6 +109,7 @@ Flipside.add_role(
 )
 Flipside.enabled? "MyFeature", user1 # => false
 Flipside.enabled? "MyFeature", user2 # => true
+Flipside.enabled? "MyFeature", user1, user2 # => true, enabled for at least one.
 ```
 
 
@@ -125,7 +136,25 @@ This can be a convenient way of makes features "show up" in the Flipside UI. How
 (it will simply point to the place in the code where this check was done). So these features should be manually updated with a better description.
 By default, features are not added and code like `Flipside.enabled? "Some unknown feature"` will simply return `false`.
 
-Typically this should be configured in an initializer file.
+`default_object` can be used to avoid the need to always pass in a record when checking if a feature is enabled. For example, say that we
+always want to check if a feature is enabled for the currently logged in user (`Current.user`). Then we might add this configuration:
+```ruby
+Flipside.default_object = -> { Current.user }
+```
+Now we can check if a feature is enabled without needing to pass in `Current.user`:
+```ruby
+# With `default_object` set then all we need is this
+Flipside.enabled? :some_feature
+
+# Which will be the same as
+Flipside.enabled? :some_feature, Current.user
+
+# Note: if we do pass in an argument, then `default_object ` will not be used:
+Flipside.enabled? :some_feature, Current.company # check current company instead of user.
+```
+
+
+Typically this configuration should be declared in an initializer file.
 
 ```ruby
 # config/initializers/flipside.rb
@@ -133,6 +162,7 @@ require 'flipside'
 
 Flipside.ui_back_path = "/"
 Flipside.create_missing_features = true
+Flipside.default_object = -> { Current.user }
 ```
 
 #### Entities
@@ -153,9 +183,9 @@ Flipside.register_entity(
 
 The `.register_entity` method should be called once for each class that may be used as a feature enabler.
 The `search_by` keyword argument, which may be a `Symbol` or a `Proc`, dictates how records are found from searching in the ui.
-When a `Symbol` is given, then entities with an exact match on the corresponding attribute are returned. E.g. `User.where(name: query)`.
+When a `Symbol` is given, e.g. `:name`, then entities with an exact match on the corresponding attribute are returned. I.e. `User.where(name: query)`.
 When a `Proc` is given, then this `Proc` is called with the search string and is expected to return an object responding to `to_a` (e.g. an AR collection).
-This gives you the flexibility to decide how to search for entities. For example, to search for users with matching first name or last name or an email
+This gives us the flexibility to decide how to search for entities. For example, to search for users with matching first name or last name or an email
 starting with _query_, something like this could be used.
 ```ruby
 Flipside.register_entity(
