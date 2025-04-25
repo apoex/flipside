@@ -1,3 +1,9 @@
+## [0.2.2] - 2025-04-25
+
+- Add disabled? method
+- Edit feature description from UI
+- Add configuration for setting default_object
+
 ## [0.2.1] - 2025-01-30
 
 - Option to create missing features
