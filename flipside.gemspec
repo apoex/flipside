@@ -28,10 +28,13 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "activerecord", ">= 6.0"
   spec.add_dependency "sinatra"
+  spec.add_dependency "roda"
 
   spec.add_development_dependency "byebug"
+  spec.add_development_dependency "rackup", "> 2.2"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "sqlite3", ">= 2.1"
+  spec.add_development_dependency "puma", "~> 6.5"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

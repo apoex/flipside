@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
+require "active_record"
 require "flipside/version"
 require "flipside/web"
+require "flipside/web2"
 require "flipside/config/settings"
 require "flipside/config/entities"
 require "flipside/config/roles"
