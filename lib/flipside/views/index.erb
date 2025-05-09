@@ -7,6 +7,10 @@
 
     <div class="mt-12 m-auto">
       <ul>
+        <li class="hidden only:block text-center">
+          <p>No feature added yet!</p><p>Create a new feature from the console by typing:</p>
+          <code class="inline-block p-1 text-green-700 bg-slate-900">Flipside.create(name: "my_feature", description: "Some decription...")</code>
+        </li>
         <% features.each do |feature| %>
           <li class="border-b border-slate-500 hover:font-semibold">
             <a href=<%= feature.href %>>
