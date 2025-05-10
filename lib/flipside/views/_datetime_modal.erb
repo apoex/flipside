@@ -16,7 +16,7 @@
         </button>
       </div>
       <div class="mt-4">
-        <form action="<%= feature.href %>" method="post">
+        <form action="<%= feature_path(feature) %>" method="post">
           <input type="hidden" name="_method" value="put" />
           <%# <input type="hidden" name="feature_name" value="<%= feature.name %1>" /> %>
           <label class="font-bold text-slate-800">Update <%= attribute %></label>

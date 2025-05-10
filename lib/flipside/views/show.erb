@@ -1,5 +1,5 @@
 <div class="m-12">
-  <a href="<%= feature.back_path %>" class="p-2 rounded-lg text-xl text-slate-300 bg-blue-900 border border-blue-950 hover:bg-blue-800">Back</a>
+  <a href="<%= base_path %>" class="p-2 rounded-lg text-xl text-slate-300 bg-blue-900 border border-blue-950 hover:bg-blue-800">Back</a>
   <div class="mt-12 w-1/2 m-auto bg-gray-800 text-slate-400 p-8 rounded-lg shadow-lg">
     <h1 class="text-2xl font-bold mb-6">Feature Details</h1>
     <div class="mt-4 grid grid-cols-1 gap-4">
@@ -18,7 +18,7 @@
               Edit
             </button>
           </div>
-          <form action="<%= feature.href %>" method="post"  class="hidden ml-4 grow flex gap-2" data-inline-edit-target="edit">
+          <form action="<%= feature_path(feature) %>" method="post"  class="hidden ml-4 grow flex gap-2" data-inline-edit-target="edit">
             <input type="hidden" name="_method" value="put" />
             <input
               type="text"
@@ -37,18 +37,18 @@
       </div>
       <div class="mt-2 flex justify-between items-center">
         <span class="font-semibold">Enabled for all:</span>
-        <span><%= erb :_toggle_button, locals: {feature:} %></span>
+        <span><%= render :_toggle_button, locals: {feature:} %></span>
       </div>
       <div class="mt-2 flex justify-between items-center">
         <span class="font-semibold">Active From:</span>
         <span>
-          <%= erb :_datetime_modal, locals: {feature:, attribute: :activated_at} %>
+          <%= render :_datetime_modal, locals: {feature:, attribute: :activated_at} %>
         </span>
       </div>
       <div class="mt-2 flex justify-between items-center">
         <span class="font-semibold">Active Until:</span>
         <span>
-          <%= erb :_datetime_modal, locals: {feature:, attribute: :deactivated_at} %>
+          <%= render :_datetime_modal, locals: {feature:, attribute: :deactivated_at} %>
         </span>
       </div>
       <div class="mt-2 grid grid-cols-3 items-center">
@@ -56,7 +56,7 @@
         <span class="text-center"><%= feature.entity_count_str %></span>
         <span class="text-right text-xl text-slate-400">
           <a
-            href="<%= feature.entities_path %>"
+            href="<%= feature_path(feature, "entities") %>"
             class="px-2 py-1 rounded-lg bg-blue-900 border border-blue-950 hover:bg-blue-800" >
             Edit
           </a>
@@ -67,7 +67,7 @@
         <span class="text-center"><%= feature.role_count_str %></span>
         <span class="text-right text-xl text-slate-400">
           <a
-            href="<%= feature.roles_path %>"
+            href="<%= feature_path(feature, "roles") %>"
             class="px-2 py-1 rounded-lg bg-blue-900 border border-blue-950 hover:bg-blue-800" >
             Edit
           </a>

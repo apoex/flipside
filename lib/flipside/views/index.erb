@@ -12,10 +12,8 @@
           <code class="inline-block p-1 text-green-700 bg-slate-900">Flipside.create(name: "my_feature", description: "Some decription...")</code>
         </li>
         <% features.each do |feature| %>
-          <li class="border-b border-slate-500 hover:font-semibold">
-            <a href=<%= feature.href %>>
-              <%= erb :_feature_item, locals: {feature:} %>
-            </a>
+          <li class="border-b border-slate-500">
+            <%= render :_feature_item, locals: {feature:} %>
           </li>
         <% end %>
       </ul>

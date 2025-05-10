@@ -1,6 +1,10 @@
-<div class="p-4 grid grid-cols-12 gap-4 cursor-pointer text-slate-300">
-  <div class="col-span-3 text-left text-xl"><%= feature.name %></div>
-  <div class="col-span-7 text-center text-lg"><%= feature.description&.capitalize %></div>
+<div class="p-4 grid grid-cols-12 gap-4 items-center text-slate-300">
+  <div class="col-span-10">
+    <a href=<%= feature_path(feature) %> class="grid grid-cols-9 cursor-pointer hover:text-slate-400">
+      <div class="col-span-3 text-left text-xl"><%= feature.name %></div>
+      <div class="col-span-6 text-center text-lg"><%= feature.description&.capitalize %></div>
+    </a>
+  </div>
   <div class="col-span-1 text-right text-lg font-normal">
     <span
       class="inline-block py-1 px-2 min-w-20 text-center rounded-lg <%= feature.status_color %>"
@@ -9,6 +13,6 @@
     </span>
   </div>
   <div class="text-right">
-    <%= erb :_toggle_button, locals: {feature:} %>
+    <%= render :_toggle_button, locals: {feature:} %>
   </div>
 </div>

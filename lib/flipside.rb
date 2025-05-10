@@ -3,7 +3,6 @@
 require "active_record"
 require "flipside/version"
 require "flipside/web"
-require "flipside/web2"
 require "flipside/config/settings"
 require "flipside/config/entities"
 require "flipside/config/roles"
@@ -40,23 +39,23 @@ module Flipside
       feature.update(enabled: true)
     end
 
-    def add_entity(name:, entity:)
-      feature = find_by!(name:)
+    def add_entity(entity:, feature: nil, name: nil)
+      feature ||= find_by!(name:)
       Entity.find_or_create_by(feature:, flippable: entity)
     end
 
-    def remove_entity(name:, entity_id:)
-      feature = find_by!(name:)
+    def remove_entity(entity_id:, feature: nil, name: nil)
+      feature ||= find_by!(name:)
       feature.entities.find_by(id: entity_id)&.destroy
     end
 
-    def add_role(name:, class_name:, method_name:)
-      feature = find_by!(name:)
+    def add_role(class_name:, method_name:, feature: nil, name: nil)
+      feature ||= find_by!(name:)
       Role.find_or_create_by(feature:, class_name:, method: method_name)
     end
 
-    def remove_role(name:, role_id:)
-      feature = find_by!(name:)
+    def remove_role(role_id:, feature: nil, name: nil)
+      feature ||= find_by!(name:)
       feature.roles.find_by(id: role_id)&.destroy
     end
 

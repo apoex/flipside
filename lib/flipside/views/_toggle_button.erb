@@ -1,12 +1,12 @@
 <% color = feature.enabled ? "bg-blue-700" : "bg-gray-200" %>
 <% translate = feature.enabled ? "translate-x-5" : "translate-x-0" %>
+<%# FIXME: How to prevent clicking the submit button from propageting? E.g. link navigation on index page. %>
 
-<button type="button"
-        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent <%= color %>"
-        data-controller="toggle"
-        data-action="click->toggle#switch:prevent"
-        data-toggle-url-value="<%= feature.toggle_path %>"
-        data-toggle-enabled-value="<%= feature.enabled %>"
-        >
-        <span aria-hidden="true" class="pointer-events-none inline-block size-5 <%= translate %> transform rounded-full bg-white shadow"></span>
-</button>
+<form action="<%= feature_path(feature, "toggle") %>" method="post">
+  <input type="hidden" name="_method" value="put" />
+  <button type="submit"
+          class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent <%= color %>"
+          >
+          <span aria-hidden="true" class="pointer-events-none inline-block size-5 <%= translate %> transform rounded-full bg-white shadow"></span>
+  </button>
+</form>

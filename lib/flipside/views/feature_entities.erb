@@ -1,10 +1,10 @@
 <div class="m-12">
-  <a href="<%= feature.href %>" class="p-2 rounded-lg text-xl text-slate-300 bg-blue-900 border border-blue-950 hover:bg-blue-800">Back</a>
+  <a href="<%= feature_path(feature) %>" class="p-2 rounded-lg text-xl text-slate-300 bg-blue-900 border border-blue-950 hover:bg-blue-800">Back</a>
   <div class="mt-12 w-1/3 m-auto bg-gray-800 text-slate-400 p-8 rounded-lg shadow-lg">
     <h1 class="text-2xl font-bold mb-6">Entities for <span class="font-extrabold text-slate-300"><%= feature.name %></span></h1>
     <h2 class="text-xl font-bold">Add entity</h2>
-    <form action="<%= feature.add_entity_path %>" method="post">
-      <div data-controller="search" data-search-url-value="/flipside/search_entity" class="w-full flex p-0 gap-2 items-center">
+    <form action="<%= feature_path(feature, "add_entity") %>" method="post">
+      <div data-controller="search" data-search-url-value="<%= search_entity_path %>" class="w-full flex p-0 gap-2 items-center">
         <select
           name="class_name"
           data-search-target="param"
@@ -54,7 +54,7 @@
                 <%= Flipside.display_entity(entity.flippable) %> (<%= entity.flippable_type %>)
               </div>
               <div>
-                <form action="<%= feature.remove_entity_path %>" method="post">
+                <form action="<%= feature_path(feature, "remove_entity") %>" method="post">
                   <input type="hidden" name="entity_id" value="<%= entity.id %>" />
                   <button type="submit" class="p-2 bg-gray-300 text-gray-700 font-semibold rounded hover:bg-gray-400">Remove</button>
                 </form>

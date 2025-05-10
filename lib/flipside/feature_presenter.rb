@@ -2,49 +2,12 @@ require 'forwardable'
 
 class FeaturePresenter
   extend Forwardable
-  attr_reader :feature, :base_path
+  attr_reader :feature
 
   def_delegators :@feature, :name, :description, :enabled, :entities, :roles
 
-  def initialize(feature, base_path)
+  def initialize(feature)
     @feature = feature
-    @base_path = base_path
-  end
-
-  def href
-    File.join(base_path, "feature", ERB::Util.url_encode(name))
-  end
-
-  def toggle_path
-    File.join(href, "toggle")
-  end
-
-  def back_path
-    base_path
-  end
-
-  def entities_path
-    File.join(href, "entities")
-  end
-
-  def add_entity_path
-    File.join(href, "add_entity")
-  end
-
-  def remove_entity_path
-    File.join(href, "remove_entity")
-  end
-
-  def roles_path
-    File.join(href, "roles")
-  end
-
-  def add_role_path
-    File.join(href, "add_role")
-  end
-
-  def remove_role_path
-    File.join(href, "remove_role")
   end
 
   def status
