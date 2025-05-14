@@ -17,8 +17,10 @@ module Flipside
     plugin :path
     plugin :all_verbs
     plugin :unescape_path
-    plugin :public, root: File.expand_path("public", __dir__)
     plugin :render, views: File.expand_path("views", __dir__)
+    plugin :public,
+           root: File.expand_path("public", __dir__),
+           headers: {"Cache-Control" => "public, max-age=14400"}
 
     path(:public) { |name| "/#{name}" }
     path(:base, "/")
