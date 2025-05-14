@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    flipside (0.2.2)
+    flipside (0.3.0)
       activerecord (>= 6.0)
       roda
       sinatra

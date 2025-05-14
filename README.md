@@ -114,7 +114,7 @@ Flipside.enabled? "MyFeature", user1, user2 # => true, enabled for at least one.
 
 
 ## UI
-Flipside comes with a sinatra web ui to mange feature flags. To mount this sinatra app in Rails add the following to your routes.rb file.
+Flipside comes with a Roda web ui to mange feature flags. To mount this roda app in Rails add the following to your routes.rb file.
 ```ruby
 mount Flipside::Web, at: '/flipside'
 ```

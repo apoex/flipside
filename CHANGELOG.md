@@ -1,3 +1,8 @@
+## [0.3.0] - 2025-05-14
+- Rewrite Sinatra UI to Roda
+- Fix links not respecting mount point
+- Add Cache-Control header for js files
+
 ## [0.2.2] - 2025-04-25
 
 - Add disabled? method
