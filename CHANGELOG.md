@@ -1,3 +1,6 @@
+## [0.3.0] - 2025-05-15
+- Remove dependency on sinatra
+
 ## [0.3.0] - 2025-05-14
 - Rewrite Sinatra UI to Roda
 - Fix links not respecting mount point
