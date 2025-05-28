@@ -7,13 +7,19 @@
         <div class="mt-2 flex justify-between items-center">
           <span class="font-semibold">Name:</span>
           <span class="font-bold text-lg text-slate-300"><%= feature.name %></span>
+          <span>
+            <form action="<%= feature_path(feature) %>" method="post" onsubmit="return confirm('Are you sure you want to delete this feature?')">
+              <input type="hidden" name="_method" value="delete" />
+              <button type="submit" class="px-2 py-1 rounded-lg bg-amber-800 text-xl text-slate-400 border border-amber-950 hover:bg-amber-900">Delete</button>
+            </form>
+          </span>
         </div>
 				<div class="mt-2 flex justify-between items-center text-center" data-controller="inline-edit">
           <div class="font-semibold">Description:</div>
-          <div data-inline-edit-target="read"><%= feature.description %></div>
+          <div class="-ml-6" data-inline-edit-target="read"><%= feature.description %></div>
           <div class="ml-2 " data-inline-edit-target="read">
             <button
-              class="px-2 py-1 rounded-lg bg-blue-900 text-xl text-slate-400 border border-blue-950 hover:bg-blue-800"
+              class="px-5 py-1 rounded-lg bg-blue-900 text-xl text-slate-400 border border-blue-950 hover:bg-blue-800"
               data-action="inline-edit#edit" >
               Edit
             </button>

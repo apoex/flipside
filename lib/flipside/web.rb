@@ -63,6 +63,11 @@ module Flipside
             feature.update(**kwargs)
             r.redirect r.path, 303
           end
+
+          r.delete do
+            feature.destroy
+            r.redirect base_path, 303
+          end
         end
 
         r.put "toggle" do
