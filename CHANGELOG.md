@@ -1,3 +1,7 @@
+## [0.3.2] - 2025-05-28
+- Add button to delete a feature
+- Make switch light blue when feature is partially enabled
+
 ## [0.3.1] - 2025-05-15
 - Remove dependency on sinatra
 
