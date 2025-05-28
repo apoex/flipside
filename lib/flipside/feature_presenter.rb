@@ -28,6 +28,16 @@ class FeaturePresenter
     end
   end
 
+  def switch_color
+    return "bg-blue-700" if feature.enabled
+
+    if (feature.entities.count + feature.roles.count) > 0
+      "bg-blue-300"
+    else
+      "bg-gray-200"
+    end
+  end
+
   def activated_at
     feature.activated_at&.strftime("%Y-%m-%d %H:%M")
   end
