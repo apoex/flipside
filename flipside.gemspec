@@ -10,13 +10,13 @@ Gem::Specification.new do |spec|
 
   spec.summary = "Feature flags."
   spec.description = "Create simple feature toggles."
-  spec.homepage = "https://github.com/sammyhenningsson/flipside"
+  spec.homepage = "https://github.com/apoex/flipside"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
 
-  spec.metadata["homepage_uri"] = "https://github.com/sammyhenningsson/flipside"
-  spec.metadata["source_code_uri"] = "https://github.com/sammyhenningsson/flipside"
-  spec.metadata["changelog_uri"] = "https://github.com/sammyhenningsson/flipside/blob/main/CHANGELOG.md"
+  spec.metadata["homepage_uri"] = "https://github.com/apoex/flipside"
+  spec.metadata["source_code_uri"] = "https://github.com/apoex/flipside"
+  spec.metadata["changelog_uri"] = "https://github.com/apoex/flipside/blob/main/CHANGELOG.md"
 
   # Specify which files should be added to the gem when it is released.
   spec.files = Dir['lib/**/*rb'] \
