@@ -1,3 +1,6 @@
+## [0.3.3] - 2025-08-21
+- Move gem ownership
+
 ## [0.3.2] - 2025-05-28
 - Add button to delete a feature
 - Make switch light blue when feature is partially enabled

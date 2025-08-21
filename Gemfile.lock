@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    flipside (0.3.2)
+    flipside (0.3.3)
       activerecord (>= 6.0)
       roda
       tilt
