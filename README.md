@@ -93,7 +93,7 @@ Features can be enabled for a certain record, typically a certain user or organi
 ```ruby
 user = User.first
 Flipside.enabled? "MyFeature", user # => false
-Flipside.add_entity(name: "MyFeature", user)
+Flipside.add_entity(name: "MyFeature", entity: user)
 Flipside.enabled? "MyFeature", user # => true
 ```
 
@@ -125,7 +125,7 @@ Note: you probably want to wrap this inside a constraints block to provide some 
 
 ### Configuration
 
-The Flipside UI can be configured by calling some class methods on `Flipside` (see below).
+Flipside can be configured by calling some class methods on `Flipside` (see below).
 
 `ui_back_path` is used to set a path to return to from the Flipside UI. If this is set, then the UI shows a "Back" button,
 targeting this path/url. By default no back button is shown.
