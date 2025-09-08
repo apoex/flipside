@@ -39,6 +39,11 @@ module Flipside
       feature.update(enabled: true)
     end
 
+    def disable!(name)
+      feature = find_by!(name:)
+      feature.update(enabled: false)
+    end
+
     def add_entity(entity:, feature: nil, name: nil)
       feature ||= find_by!(name:)
       Entity.find_or_create_by(feature:, flippable: entity)
