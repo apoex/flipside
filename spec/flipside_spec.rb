@@ -122,6 +122,22 @@ module Flipside
       end
     end
 
+    describe ".disable!" do
+      it "disables the feature" do
+        feature = Feature.create!(name: "some_feature", enabled: true)
+
+        Flipside.disable! :some_feature
+
+        expect(feature.reload.enabled).to eq(false)
+      end
+
+      it "raises an exception when feature does not exist" do
+        expect {
+          Flipside.disable! :non_existing
+        }.to raise_error(NoSuchFeauture)
+      end
+    end
+
     describe ".disabled?" do
       it "returns true when feature does not exist" do
         expect(Flipside.disabled?(:non_existing)).to eq(true)
