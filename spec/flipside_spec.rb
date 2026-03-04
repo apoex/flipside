@@ -96,6 +96,15 @@ module Flipside
           expect(feature).to have_received(:enabled?).with("foobar")
         end
 
+        it "checks if each object when default_object is an array" do
+          Flipside.default_object = -> { ["foo", "bar"] }
+
+          Flipside.enabled? :some_feature
+
+          expect(feature).to have_received(:enabled?).with("foo")
+          expect(feature).to have_received(:enabled?).with("bar")
+        end
+
         it "does not consider default_object when an argument is given" do
           Flipside.default_object = "foobar"
 

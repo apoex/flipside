@@ -149,6 +149,11 @@ Flipside.enabled? :some_feature
 # Which will be the same as
 Flipside.enabled? :some_feature, Current.user
 
+# If `default_object` is an Array, then each element is checked if the feature is enabled.
+```ruby
+Flipside.default_object = -> { [Current.user, Current.organization] }
+```
+
 # Note: if we do pass in an argument, then `default_object ` will not be used:
 Flipside.enabled? :some_feature, Current.company # check current company instead of user.
 ```
