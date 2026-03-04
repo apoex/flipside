@@ -1,3 +1,6 @@
+## [0.3.4] - 2026-03-04
+- Support an array of default objects
+
 ## [0.3.3] - 2025-08-21
 - Move gem ownership
 
