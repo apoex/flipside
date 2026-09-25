@@ -47,7 +47,7 @@ module Flipside
 
         if record.nil?
           "#{label} (deleted)"
-        elsif registered_entities.key?(entity.flippable_type)
+        elsif registered_entities.key?(record.class.to_s)
           display_flippable(record)
         else
           label

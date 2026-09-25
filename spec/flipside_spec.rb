@@ -370,6 +370,18 @@ module Flipside
         expect(Flipside.display_entity(entity.reload)).to eq("User ##{user.id} (deleted)")
       end
 
+      it "displays an entity whose flippable is an STI subclass" do
+        ActiveRecord::Base.connection.add_column(:users, :type, :string)
+        User.reset_column_information
+        stub_const("Admin", Class.new(User))
+        Flipside.add_registered_entity(class_name: "Admin", search_by: nil, display_as: :name)
+        feature = Feature.create!(name: "some_feature")
+        admin = Admin.create!(name: "John Doe")
+        entity = Entity.create!(feature:, flippable: admin)
+
+        expect(Flipside.display_entity(entity.reload)).to eq("John Doe")
+      end
+
       it "displays an entity whose class is no longer registered" do
         feature = Feature.create!(name: "some_feature")
         user = User.create!(name: "John Doe")
