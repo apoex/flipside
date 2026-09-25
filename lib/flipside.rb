@@ -73,6 +73,7 @@ module Flipside
         next entities.delete_all unless klass
 
         existing = klass
+          .unscoped
           .where(klass.primary_key => entities.pluck(:flippable_id))
           .pluck(klass.primary_key)
         entities.where.not(flippable_id: existing).delete_all

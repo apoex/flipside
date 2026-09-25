@@ -277,6 +277,20 @@ module Flipside
         expect(Flipside.prune_orphaned_entities).to eq(1)
         expect(Entity.count).to eq(0)
       end
+
+      it "keeps entities whose record is hidden by a default scope" do
+        stub_const("SoftDeletedUser", Class.new(ActiveRecord::Base) do
+          self.table_name = "users"
+          default_scope { where.not(name: "deleted") }
+        end)
+        feature = Feature.create!(name: "some_feature")
+        user = SoftDeletedUser.create!(name: "John Doe")
+        entity = Entity.create!(feature:, flippable: user)
+        user.update!(name: "deleted")
+
+        expect(Flipside.prune_orphaned_entities).to eq(0)
+        expect(Entity.all).to eq([entity])
+      end
     end
 
     describe ".register_entity" do
