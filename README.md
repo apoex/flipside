@@ -104,6 +104,11 @@ class User < ApplicationRecord
 end
 ```
 
+Entities left behind by records deleted without callbacks (or before the concern was added) can be removed with:
+```ruby
+Flipside.prune_orphaned_entities # => number of entities deleted
+```
+
 Features can be enabled for records responding true to a certain method. This is called a "role". Given that User records have an admin? method. A feature can then be enabled
 for all users who are admins, using the `.add_role` method:
 ```ruby

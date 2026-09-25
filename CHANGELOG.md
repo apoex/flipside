@@ -1,6 +1,7 @@
 ## [Unreleased]
 - Show entities whose record has been deleted instead of raising in the UI
 - Add `Flipside::Flippable` to remove a record's entities when it is destroyed
+- Add `Flipside.prune_orphaned_entities`
 
 ## [0.3.4] - 2026-03-04
 - Support an array of default objects

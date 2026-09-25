@@ -257,6 +257,28 @@ module Flipside
       end
     end
 
+    describe ".prune_orphaned_entities" do
+      it "deletes entities whose record has been deleted" do
+        feature = Feature.create!(name: "some_feature")
+        user = User.create!(name: "John Doe")
+        other_user = User.create!(name: "Jane Doe")
+        Entity.create!(feature:, flippable: user)
+        other_entity = Entity.create!(feature:, flippable: other_user)
+        user.delete
+
+        expect(Flipside.prune_orphaned_entities).to eq(1)
+        expect(Entity.all).to eq([other_entity])
+      end
+
+      it "deletes entities whose class no longer exists" do
+        feature = Feature.create!(name: "some_feature")
+        Entity.create!(feature:, flippable_type: "Removed", flippable_id: 1)
+
+        expect(Flipside.prune_orphaned_entities).to eq(1)
+        expect(Entity.count).to eq(0)
+      end
+    end
+
     describe ".register_entity" do
       after do
         Flipside.send(:registered_entities).clear

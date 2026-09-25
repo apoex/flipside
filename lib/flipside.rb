@@ -56,6 +56,21 @@ module Flipside
       feature.entities.find_by(id: entity_id)&.destroy
     end
 
+    # Deletes entities whose record no longer exists, or whose class does not.
+    # Returns the number of entities deleted.
+    def prune_orphaned_entities
+      Entity.distinct.pluck(:flippable_type).sum do |type|
+        entities = Entity.where(flippable_type: type)
+        klass = type.safe_constantize
+        next entities.delete_all unless klass
+
+        existing = klass
+          .where(klass.primary_key => entities.pluck(:flippable_id))
+          .pluck(klass.primary_key)
+        entities.where.not(flippable_id: existing).delete_all
+      end
+    end
+
     def add_role(class_name:, method_name:, feature: nil, name: nil)
       feature ||= find_by!(name:)
       Role.find_or_create_by(feature:, class_name:, method: method_name)
