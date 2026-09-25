@@ -292,6 +292,21 @@ module Flipside
       end
     end
 
+    describe ".register_role" do
+      after do
+        Flipside.send(:registered_roles).clear
+      end
+
+      it "registers the same role only once" do
+        Flipside.register_role(class_name: "User", method_name: :admin?)
+        Flipside.register_role(class_name: "User", method_name: :admin?, display_as: "Admin")
+
+        results = Flipside.search_role(class_name: "User", query: "admin")
+
+        expect(results.map(&:display_as)).to eq(["Admin"])
+      end
+    end
+
     describe ".display_entity" do
       after do
         Flipside.send(:registered_entities).clear
