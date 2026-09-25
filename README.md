@@ -204,7 +204,7 @@ Entities can be added to a feature by searching for records.
 
 ![Add an entity](/add_entity.png)
 
-`flipside_entity` should be called in each class that may be used as a feature enabler. It also removes the entities of a record when it is destroyed.
+`flipside_entity` should be called in each class that may be used as a feature enabler. It also removes the entities of a record when it is destroyed. Note that this includes soft deletion that runs destroy callbacks (e.g. paranoia), so a restored record comes back without its features. Soft deletion that skips them (e.g. discard) keeps the entities.
 ```ruby
 class User < ApplicationRecord
   include Flipside::Flippable
