@@ -87,7 +87,7 @@ We can also check multiple records. `.enabled?` will return `true` if any of the
 Flipside.enabled? "MyFeature", user, company, location
 ```
 
-### Enabling features for specific records
+#### Enabling features for specific records
 
 Features can be enabled for a certain record, typically a certain user or organization. These records are called entities. To enable a feature for a given record use `.add_entity`:
 ```ruby
@@ -130,7 +130,7 @@ Note: you probably want to wrap this inside a constraints block to provide some 
 ![UI](/features.png)
 
 
-### Configuration
+## Configuration
 
 Flipside can be configured by calling some class methods on `Flipside` (see below).
 
@@ -161,7 +161,7 @@ Flipside.enabled? :some_feature, Current.user
 Flipside.default_object = -> { [Current.user, Current.organization] }
 ```
 
-# Note: if we do pass in an argument, then `default_object ` will not be used:
+#### Note: if we do pass in an argument, then `default_object ` will not be used:
 Flipside.enabled? :some_feature, Current.company # check current company instead of user.
 ```
 
@@ -177,7 +177,7 @@ Flipside.create_missing_features = true
 Flipside.default_object = -> { Current.user }
 ```
 
-#### Entities
+### Entities
 
 Entities can be added to a feature by searching for records.
 
@@ -233,7 +233,7 @@ Flipside.register_entity(
 )
 ```
 
-#### Roles
+### Roles
 
 Features can be enabled for certain roles, by searching for roles (by method name).
 
