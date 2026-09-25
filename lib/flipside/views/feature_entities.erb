@@ -51,7 +51,7 @@
           <li class="mt-2 p-2 bg-slate-700 text-slate-300 border border-slate-600 rounded-lg">
             <div class="flex justify-between items-center">
               <div>
-                <%= Flipside.display_entity(entity.flippable) %> (<%= entity.flippable_type %>)
+                <%= Flipside.display_entity(entity) %> (<%= entity.flippable_type %>)
               </div>
               <div>
                 <form action="<%= feature_path(feature, "remove_entity") %>" method="post">

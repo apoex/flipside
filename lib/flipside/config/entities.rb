@@ -24,13 +24,31 @@ module Flipside
         registered_entities.fetch(class_name.to_s).find(identifier)
       end
 
+      # Accepts either a flippable record or a Flipside::Entity join row. Given
+      # a join row, it still renders when the record has been deleted or its
+      # class is no longer registered, so the UI can list it for removal.
       def display_entity(entity)
-        registered_entities
-          .fetch(entity.class.to_s)
-          .display(entity)
+        return display_flippable(entity) unless entity.is_a?(Flipside::Entity)
+
+        record = entity.flippable
+        label = "#{entity.flippable_type} ##{entity.flippable_id}"
+
+        if record.nil?
+          "#{label} (deleted)"
+        elsif registered_entities.key?(entity.flippable_type)
+          display_flippable(record)
+        else
+          label
+        end
       end
 
       private
+
+      def display_flippable(record)
+        registered_entities
+          .fetch(record.class.to_s)
+          .display(record)
+      end
 
       def registered_entities
         @registered_entities ||= {}

@@ -281,6 +281,33 @@ module Flipside
 
         expect(Flipside.display_entity(user)).to eq("John Doe")
       end
+
+      it "displays the flippable of an entity" do
+        Flipside.register_entity(class_name: "User", search_by: nil, display_as: :name)
+        feature = Feature.create!(name: "some_feature")
+        user = User.create!(name: "John Doe")
+        entity = Entity.create!(feature:, flippable: user)
+
+        expect(Flipside.display_entity(entity)).to eq("John Doe")
+      end
+
+      it "displays an entity whose flippable has been deleted" do
+        Flipside.register_entity(class_name: "User", search_by: nil, display_as: :name)
+        feature = Feature.create!(name: "some_feature")
+        user = User.create!(name: "John Doe")
+        entity = Entity.create!(feature:, flippable: user)
+        user.delete
+
+        expect(Flipside.display_entity(entity.reload)).to eq("User ##{user.id} (deleted)")
+      end
+
+      it "displays an entity whose class is no longer registered" do
+        feature = Feature.create!(name: "some_feature")
+        user = User.create!(name: "John Doe")
+        entity = Entity.create!(feature:, flippable: user)
+
+        expect(Flipside.display_entity(entity)).to eq("User ##{user.id}")
+      end
     end
   end
 end
