@@ -13,14 +13,17 @@ module Flipside
       end
 
       def entity_classes
+        load_flippables
         registered_entities.keys
       end
 
       def search_entity(class_name:, query:)
+        load_flippables
         registered_entities.fetch(class_name.to_s).search(query)
       end
 
       def find_entity(class_name:, identifier:)
+        load_flippables
         registered_entities.fetch(class_name.to_s).find(identifier)
       end
 

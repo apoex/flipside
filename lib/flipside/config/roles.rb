@@ -13,10 +13,12 @@ module Flipside
       end
 
       def role_classes
+        load_flippables
         registered_roles.keys
       end
 
       def search_role(class_name:, query:)
+        load_flippables
         registered_roles.fetch(class_name.to_s).values.filter_map do |registered_role|
           next unless registered_role.match? query
           registered_role.to_result

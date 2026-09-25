@@ -6,6 +6,7 @@ require "flipside/web"
 require "flipside/config/settings"
 require "flipside/config/entities"
 require "flipside/config/roles"
+require "flipside/config/flippables"
 require "models/flipside/feature"
 require "models/flipside/flippable"
 
@@ -13,6 +14,7 @@ module Flipside
   extend Config::Settings
   extend Config::Entities
   extend Config::Roles
+  extend Config::Flippables
 
   class Error < StandardError; end
 

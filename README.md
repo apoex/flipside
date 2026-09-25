@@ -97,12 +97,7 @@ Flipside.add_entity(name: "MyFeature", entity: user)
 Flipside.enabled? "MyFeature", user # => true
 ```
 
-Entities reference their record polymorphically, so there is no foreign key to clean them up when the record is deleted. Include `Flipside::Flippable` in the model to remove its entities when a record is destroyed:
-```ruby
-class User < ApplicationRecord
-  include Flipside::Flippable
-end
-```
+Entities reference their record polymorphically, so there is no foreign key to clean them up when the record is deleted. A model registered with `flipside_entity` (see [Registering from the model](#registering-from-the-model)) removes its entities when a record is destroyed.
 
 Entities left behind by records deleted without callbacks (or before the concern was added) can be removed with:
 ```ruby
@@ -250,6 +245,26 @@ Note a role consists of a class and a corresponding instance method.
 Flipside.register_role(class_name: "User", method_name: :admin?)
 Flipside.register_role(class_name: "User", method_name: :awesome?)
 ```
+
+### Registering from the model
+
+Instead of registering entities and roles in an initializer, a model can register itself by including `Flipside::Flippable`. List the class names in the initializer, so that Flipside can load them when the UI needs them (also when the app does not eager load):
+```ruby
+# config/initializers/flipside.rb
+Flipside.flippables = %w[User]
+```
+
+```ruby
+class User < ApplicationRecord
+  include Flipside::Flippable
+
+  flipside_entity search_by: :name, display_as: :name
+  flipside_role :admin?
+  flipside_role :awesome?, display_as: "Awesome users"
+end
+```
+
+`flipside_entity` takes the same options as `Flipside.register_entity`, and `flipside_role` those of `Flipside.register_role`. `flipside_entity` also removes the entities of a record when it is destroyed. A class using these macros must be listed in `Flipside.flippables`, and a listed class must call at least one of them, otherwise Flipside raises.
 
 ## Development
 

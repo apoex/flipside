@@ -1,6 +1,6 @@
 ## [Unreleased]
 - Show entities whose record has been deleted instead of raising in the UI
-- Add `Flipside::Flippable` to remove a record's entities when it is destroyed
+- Add `Flipside::Flippable` with `flipside_entity` and `flipside_role`, so models can register themselves (listed in `Flipside.flippables`); entities of a destroyed record are removed
 - Add `Flipside.prune_orphaned_entities`
 - Registering the same role twice no longer lists it twice
 
