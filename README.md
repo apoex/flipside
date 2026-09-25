@@ -87,7 +87,7 @@ We can also check multiple records. `.enabled?` will return `true` if any of the
 Flipside.enabled? "MyFeature", user, company, location
 ```
 
-### Enabling features for specific records
+#### Enabling features for specific records
 
 Features can be enabled for a certain record, typically a certain user or organization. These records are called entities. To enable a feature for a given record use `.add_entity`:
 ```ruby
@@ -95,6 +95,13 @@ user = User.first
 Flipside.enabled? "MyFeature", user # => false
 Flipside.add_entity(name: "MyFeature", entity: user)
 Flipside.enabled? "MyFeature", user # => true
+```
+
+Entities reference their record polymorphically, so there is no foreign key to clean them up when the record is deleted. A model registered with `flipside_entity` (see [Registering from the model](#registering-from-the-model)) removes its entities when a record is destroyed.
+
+Entities left behind by records deleted without callbacks (or before the concern was added) can be removed with:
+```ruby
+Flipside.prune_orphaned_entities # => number of entities deleted
 ```
 
 Features can be enabled for records responding true to a certain method. This is called a "role". Given that User records have an admin? method. A feature can then be enabled
@@ -123,7 +130,7 @@ Note: you probably want to wrap this inside a constraints block to provide some 
 ![UI](/features.png)
 
 
-### Configuration
+## Configuration
 
 Flipside can be configured by calling some class methods on `Flipside` (see below).
 
@@ -154,7 +161,7 @@ Flipside.enabled? :some_feature, Current.user
 Flipside.default_object = -> { [Current.user, Current.organization] }
 ```
 
-# Note: if we do pass in an argument, then `default_object ` will not be used:
+#### Note: if we do pass in an argument, then `default_object ` will not be used:
 Flipside.enabled? :some_feature, Current.company # check current company instead of user.
 ```
 
@@ -170,34 +177,51 @@ Flipside.create_missing_features = true
 Flipside.default_object = -> { Current.user }
 ```
 
-#### Entities
+### Registering from the model
+
+Entities and roles are searched for in the UI, so Flipside needs to know which classes can be used. A model registers itself by including `Flipside::Flippable` and calling `flipside_entity` and/or `flipside_role`:
+```ruby
+class User < ApplicationRecord
+  include Flipside::Flippable
+
+  flipside_entity search_by: :name, display_as: :name
+  flipside_role :admin?
+  flipside_role :awesome?, display_as: "Awesome users"
+end
+```
+
+List the class names in an initializer, so that Flipside can load them when the UI needs them (also when the app does not eager load):
+```ruby
+# config/initializers/flipside.rb
+Flipside.flippables = %w[User]
+```
+
+A class using these macros must be listed in `Flipside.flippables`, and a listed class must call at least one of them, otherwise Flipside raises.
+
+### Entities
 
 Entities can be added to a feature by searching for records.
 
 ![Add an entity](/add_entity.png)
 
-To make this work, some configuration is required. Use the class method `Flipside.register_entity` for this.
+`flipside_entity` should be called in each class that may be used as a feature enabler. It also removes the entities of a record when it is destroyed.
 ```ruby
-Flipside.register_entity(
-  class_name: "User",
-  search_by: :name,
-  display_as: :name,
-  identified_by: :id
-)
+class User < ApplicationRecord
+  include Flipside::Flippable
+
+  flipside_entity search_by: :name, display_as: :name, identified_by: :id
+end
 ```
 
-The `.register_entity` method should be called once for each class that may be used as a feature enabler.
 The `search_by` keyword argument, which may be a `Symbol` or a `Proc`, dictates how records are found from searching in the ui.
 When a `Symbol` is given, e.g. `:name`, then entities with an exact match on the corresponding attribute are returned. I.e. `User.where(name: query)`.
 When a `Proc` is given, then this `Proc` is called with the search string and is expected to return an object responding to `to_a` (e.g. an AR collection).
 This gives us the flexibility to decide how to search for entities. For example, to search for users with matching first name or last name or an email
 starting with _query_, something like this could be used.
 ```ruby
-Flipside.register_entity(
-  class_name: "User",
-  search_by: ->(str) { User.where("lower(first_name) = :name OR lower(last_name) = :name or email LIKE :str", name: str.downcase, str: "#{str}%") },
-)
-
+flipside_entity search_by: ->(str) {
+  where("lower(first_name) = :name OR lower(last_name) = :name or email LIKE :str", name: str.downcase, str: "#{str}%")
+}
 ```
 
 The `identified_by` keyword argument, sets the column used as primary key for the corresponding table. This defaults to `:id` and typically does need to be change.
@@ -207,37 +231,71 @@ The `display_as` keyword argument, is used to configure how these entities show 
 For example, given the following setup. Users will be displayed with first name and last name:
 ```ruby
 class User < ApplicationRecord
+  include Flipside::Flippable
+
+  flipside_entity display_as: :name
+
   def name
     [first_name, last_name].compact.map(&:capitalize).join(" ")
   end
 end
-
-Flipside.register_entity(
-  class_name: "User",
-  display_as: :name,
-)
 ```
 
 When a `Proc` is given, then it is expected to take an entity as input and return a string used for displaying the entity. The config above could then instead be done using:
 ```ruby
-Flipside.register_entity(
-  class_name: "User",
-  display_as: ->(user) { [user.first_name, user.last_name].compact.map(&:capitalize).join(" ") }
-)
+flipside_entity display_as: ->(user) { [user.first_name, user.last_name].compact.map(&:capitalize).join(" ") }
 ```
 
-#### Roles
+### Roles
 
 Features can be enabled for certain roles, by searching for roles (by method name).
 
 ![Add a role](/add_role.png)
 
-This is configured by calling the class method `Flipside.register_role` for each role to be added.
-Note a role consists of a class and a corresponding instance method.
+This is configured by calling `flipside_role` for each role to be added. A role consists of a class and a corresponding instance method, and `display_as` optionally sets how it shows up in the UI.
 ```ruby
-Flipside.register_role(class_name: "User", method_name: :admin?)
-Flipside.register_role(class_name: "User", method_name: :awesome?)
+class User < ApplicationRecord
+  include Flipside::Flippable
+
+  flipside_role :admin?
+  flipside_role :awesome?, display_as: "Awesome users"
+end
 ```
+
+### Classes you cannot edit
+
+A class from another gem can be registered by including the concern from `to_prepare`, which runs at boot and again after every reload. It must still be listed in `Flipside.flippables`:
+```ruby
+# config/initializers/flipside.rb
+Flipside.flippables = %w[User OtherGem::Account]
+
+Rails.application.config.to_prepare do
+  OtherGem::Account.include(Flipside::Flippable)
+  OtherGem::Account.flipside_entity(display_as: :name)
+end
+```
+
+### Upgrading from `register_entity` and `register_role`
+
+`Flipside.register_entity` and `Flipside.register_role` are deprecated and will be removed in Flipside 1.0. Move each call into its model:
+```ruby
+# Before, in config/initializers/flipside.rb
+Flipside.register_entity(class_name: "User", search_by: :name, display_as: :name)
+Flipside.register_role(class_name: "User", method_name: :admin?)
+
+# After, in config/initializers/flipside.rb
+Flipside.flippables = %w[User]
+
+# and in app/models/user.rb
+class User < ApplicationRecord
+  include Flipside::Flippable
+
+  flipside_entity search_by: :name, display_as: :name
+  flipside_role :admin?
+end
+```
+
+In a Rails 7.1+ app the deprecation warnings follow the app's own deprecation settings (`Rails.application.deprecators[:flipside]`).
 
 ## Development
 

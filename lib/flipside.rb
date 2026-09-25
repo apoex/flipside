@@ -1,17 +1,22 @@
 # frozen_string_literal: true
 
 require "active_record"
+require "active_support/deprecation"
 require "flipside/version"
 require "flipside/web"
 require "flipside/config/settings"
 require "flipside/config/entities"
 require "flipside/config/roles"
+require "flipside/config/flippables"
 require "models/flipside/feature"
+require "models/flipside/flippable"
+require "flipside/railtie" if defined?(Rails::Railtie)
 
 module Flipside
   extend Config::Settings
   extend Config::Entities
   extend Config::Roles
+  extend Config::Flippables
 
   class Error < StandardError; end
 
@@ -22,6 +27,10 @@ module Flipside
   end
 
   class << self
+    def deprecator
+      @deprecator ||= ActiveSupport::Deprecation.new("1.0", "Flipside")
+    end
+
     def enabled?(name, *objects)
       feature = find_by(name:)
       return false unless feature
@@ -53,6 +62,22 @@ module Flipside
     def remove_entity(entity_id:, feature: nil, name: nil)
       feature ||= find_by!(name:)
       feature.entities.find_by(id: entity_id)&.destroy
+    end
+
+    # Deletes entities whose record no longer exists, or whose class does not.
+    # Returns the number of entities deleted.
+    def prune_orphaned_entities
+      Entity.distinct.pluck(:flippable_type).sum do |type|
+        entities = Entity.where(flippable_type: type)
+        klass = type.safe_constantize
+        next entities.delete_all unless klass
+
+        existing = klass
+          .unscoped
+          .where(klass.primary_key => entities.pluck(:flippable_id))
+          .pluck(klass.primary_key)
+        entities.where.not(flippable_id: existing).delete_all
+      end
     end
 
     def add_role(class_name:, method_name:, feature: nil, name: nil)

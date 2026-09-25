@@ -257,16 +257,99 @@ module Flipside
       end
     end
 
+    describe ".prune_orphaned_entities" do
+      it "deletes entities whose record has been deleted" do
+        feature = Feature.create!(name: "some_feature")
+        user = User.create!(name: "John Doe")
+        other_user = User.create!(name: "Jane Doe")
+        Entity.create!(feature:, flippable: user)
+        other_entity = Entity.create!(feature:, flippable: other_user)
+        user.delete
+
+        expect(Flipside.prune_orphaned_entities).to eq(1)
+        expect(Entity.all).to eq([other_entity])
+      end
+
+      it "deletes entities whose class no longer exists" do
+        feature = Feature.create!(name: "some_feature")
+        Entity.create!(feature:, flippable_type: "Removed", flippable_id: 1)
+
+        expect(Flipside.prune_orphaned_entities).to eq(1)
+        expect(Entity.count).to eq(0)
+      end
+
+      it "keeps entities whose record is hidden by a default scope" do
+        stub_const("SoftDeletedUser", Class.new(ActiveRecord::Base) do
+          self.table_name = "users"
+          default_scope { where.not(name: "deleted") }
+        end)
+        feature = Feature.create!(name: "some_feature")
+        user = SoftDeletedUser.create!(name: "John Doe")
+        entity = Entity.create!(feature:, flippable: user)
+        user.update!(name: "deleted")
+
+        expect(Flipside.prune_orphaned_entities).to eq(0)
+        expect(Entity.all).to eq([entity])
+      end
+    end
+
     describe ".register_entity" do
       after do
         Flipside.send(:registered_entities).clear
       end
 
+      it "is deprecated" do
+        expect(Flipside.deprecator)
+          .to receive(:warn)
+          .with(/register_entity is deprecated and will be removed in Flipside 1.0/)
+
+        Flipside.register_entity(class_name: "User", search_by: nil, display_as: :name)
+
+        expect(Flipside.entity_classes).to eq(["User"])
+      end
+    end
+
+    describe ".entity_classes" do
+      after do
+        Flipside.send(:registered_entities).clear
+      end
+
       it "can list entity classes" do
-        Flipside.register_entity(class_name: "Foo", search_by: nil, display_as: nil)
-        Flipside.register_entity(class_name: "Bar", search_by: nil, display_as: nil)
+        Flipside.add_registered_entity(class_name: "Foo", search_by: nil, display_as: nil)
+        Flipside.add_registered_entity(class_name: "Bar", search_by: nil, display_as: nil)
 
         expect(Flipside.entity_classes).to eq(["Foo", "Bar"])
+      end
+    end
+
+    describe ".register_role" do
+      after do
+        Flipside.send(:registered_roles).clear
+      end
+
+      it "is deprecated" do
+        expect(Flipside.deprecator)
+          .to receive(:warn)
+          .with(/register_role is deprecated and will be removed in Flipside 1.0/)
+
+        Flipside.register_role(class_name: "User", method_name: :admin?)
+
+        expect(Flipside.role_classes).to eq(["User"])
+      end
+    end
+
+    describe ".add_registered_role" do
+      after do
+        Flipside.send(:registered_roles).clear
+      end
+
+      it "registers the same role only once" do
+        Flipside.add_registered_role(class_name: "User", method_name: :admin?)
+        Flipside.add_registered_role(class_name: "User", method_name: :admin?, display_as: "Admin")
+
+        results = Flipside.search_role(class_name: "User", query: "admin")
+
+        expect(results.map(&:display_as)).to eq(["Admin"])
       end
     end
 
@@ -276,10 +359,56 @@ module Flipside
       end
 
       it "can list entity classes" do
-        Flipside.register_entity(class_name: "User", search_by: nil, display_as: :name)
+        Flipside.add_registered_entity(class_name: "User", search_by: nil, display_as: :name)
         user = User.new(name: "John Doe")
 
         expect(Flipside.display_entity(user)).to eq("John Doe")
+      end
+
+      it "displays the flippable of an entity" do
+        Flipside.add_registered_entity(class_name: "User", search_by: nil, display_as: :name)
+        feature = Feature.create!(name: "some_feature")
+        user = User.create!(name: "John Doe")
+        entity = Entity.create!(feature:, flippable: user)
+
+        expect(Flipside.display_entity(entity)).to eq("John Doe")
+      end
+
+      it "displays an entity whose flippable has been deleted" do
+        Flipside.add_registered_entity(class_name: "User", search_by: nil, display_as: :name)
+        feature = Feature.create!(name: "some_feature")
+        user = User.create!(name: "John Doe")
+        entity = Entity.create!(feature:, flippable: user)
+        user.delete
+
+        expect(Flipside.display_entity(entity.reload)).to eq("User ##{user.id} (deleted)")
+      end
+
+      it "displays an entity whose flippable is an STI subclass" do
+        ActiveRecord::Base.connection.add_column(:users, :type, :string)
+        User.reset_column_information
+        stub_const("Admin", Class.new(User))
+        Flipside.add_registered_entity(class_name: "Admin", search_by: nil, display_as: :name)
+        feature = Feature.create!(name: "some_feature")
+        admin = Admin.create!(name: "John Doe")
+        entity = Entity.create!(feature:, flippable: admin)
+
+        expect(Flipside.display_entity(entity.reload)).to eq("John Doe")
+      end
+
+      it "displays an entity whose class is no longer registered" do
+        feature = Feature.create!(name: "some_feature")
+        user = User.create!(name: "John Doe")
+        entity = Entity.create!(feature:, flippable: user)
+
+        expect(Flipside.display_entity(entity)).to eq("User ##{user.id}")
+      end
+
+      it "displays an entity whose class no longer exists" do
+        feature = Feature.create!(name: "some_feature")
+        entity = Entity.create!(feature:, flippable_type: "Removed", flippable_id: 1)
+
+        expect(Flipside.display_entity(entity)).to eq("Removed #1 (deleted)")
       end
     end
   end
