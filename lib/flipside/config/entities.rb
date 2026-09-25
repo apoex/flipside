@@ -37,12 +37,13 @@ module Flipside
       end
 
       # Accepts either a flippable record or a Flipside::Entity join row. Given
-      # a join row, it still renders when the record has been deleted or its
-      # class is no longer registered, so the UI can list it for removal.
+      # a join row, it still renders when the record or its class has been
+      # deleted, or the class is no longer registered, so the UI can list it
+      # for removal.
       def display_entity(entity)
         return display_flippable(entity) unless entity.is_a?(Flipside::Entity)
 
-        record = entity.flippable
+        record = entity.flippable if entity.flippable_type.safe_constantize
         label = "#{entity.flippable_type} ##{entity.flippable_id}"
 
         if record.nil?

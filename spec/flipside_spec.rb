@@ -403,6 +403,13 @@ module Flipside
 
         expect(Flipside.display_entity(entity)).to eq("User ##{user.id}")
       end
+
+      it "displays an entity whose class no longer exists" do
+        feature = Feature.create!(name: "some_feature")
+        entity = Entity.create!(feature:, flippable_type: "Removed", flippable_id: 1)
+
+        expect(Flipside.display_entity(entity)).to eq("Removed #1 (deleted)")
+      end
     end
   end
 end
