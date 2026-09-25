@@ -284,9 +284,25 @@ module Flipside
         Flipside.send(:registered_entities).clear
       end
 
+      it "is deprecated" do
+        expect(Flipside.deprecator)
+          .to receive(:warn)
+          .with(/register_entity is deprecated and will be removed in Flipside 1.0/)
+
+        Flipside.register_entity(class_name: "User", search_by: nil, display_as: :name)
+
+        expect(Flipside.entity_classes).to eq(["User"])
+      end
+    end
+
+    describe ".entity_classes" do
+      after do
+        Flipside.send(:registered_entities).clear
+      end
+
       it "can list entity classes" do
-        Flipside.register_entity(class_name: "Foo", search_by: nil, display_as: nil)
-        Flipside.register_entity(class_name: "Bar", search_by: nil, display_as: nil)
+        Flipside.add_registered_entity(class_name: "Foo", search_by: nil, display_as: nil)
+        Flipside.add_registered_entity(class_name: "Bar", search_by: nil, display_as: nil)
 
         expect(Flipside.entity_classes).to eq(["Foo", "Bar"])
       end
@@ -297,9 +313,25 @@ module Flipside
         Flipside.send(:registered_roles).clear
       end
 
-      it "registers the same role only once" do
+      it "is deprecated" do
+        expect(Flipside.deprecator)
+          .to receive(:warn)
+          .with(/register_role is deprecated and will be removed in Flipside 1.0/)
+
         Flipside.register_role(class_name: "User", method_name: :admin?)
-        Flipside.register_role(class_name: "User", method_name: :admin?, display_as: "Admin")
+
+        expect(Flipside.role_classes).to eq(["User"])
+      end
+    end
+
+    describe ".add_registered_role" do
+      after do
+        Flipside.send(:registered_roles).clear
+      end
+
+      it "registers the same role only once" do
+        Flipside.add_registered_role(class_name: "User", method_name: :admin?)
+        Flipside.add_registered_role(class_name: "User", method_name: :admin?, display_as: "Admin")
 
         results = Flipside.search_role(class_name: "User", query: "admin")
 
@@ -313,14 +345,14 @@ module Flipside
       end
 
       it "can list entity classes" do
-        Flipside.register_entity(class_name: "User", search_by: nil, display_as: :name)
+        Flipside.add_registered_entity(class_name: "User", search_by: nil, display_as: :name)
         user = User.new(name: "John Doe")
 
         expect(Flipside.display_entity(user)).to eq("John Doe")
       end
 
       it "displays the flippable of an entity" do
-        Flipside.register_entity(class_name: "User", search_by: nil, display_as: :name)
+        Flipside.add_registered_entity(class_name: "User", search_by: nil, display_as: :name)
         feature = Feature.create!(name: "some_feature")
         user = User.create!(name: "John Doe")
         entity = Entity.create!(feature:, flippable: user)
@@ -329,7 +361,7 @@ module Flipside
       end
 
       it "displays an entity whose flippable has been deleted" do
-        Flipside.register_entity(class_name: "User", search_by: nil, display_as: :name)
+        Flipside.add_registered_entity(class_name: "User", search_by: nil, display_as: :name)
         feature = Feature.create!(name: "some_feature")
         user = User.create!(name: "John Doe")
         entity = Entity.create!(feature:, flippable: user)

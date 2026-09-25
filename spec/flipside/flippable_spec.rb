@@ -65,6 +65,16 @@ module Flipside
       end
     end
 
+    it "registers without deprecation warnings" do
+      expect(Flipside.deprecator).not_to receive(:warn)
+      Flipside.flippables = ["User"]
+
+      define_user do
+        flipside_entity
+        flipside_role(:admin?)
+      end
+    end
+
     describe "loading listed classes" do
       around do |example|
         Dir.mktmpdir do |dir|

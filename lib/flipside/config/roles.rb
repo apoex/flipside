@@ -4,6 +4,15 @@ module Flipside
   module Config
     module Roles
       def register_role(class_name:, method_name:, display_as: nil)
+        deprecator.warn(
+          "Flipside.register_role is deprecated and will be removed in Flipside " \
+          "#{deprecator.deprecation_horizon}. Include Flipside::Flippable in " \
+          "#{class_name}, call flipside_role there and list it in Flipside.flippables."
+        )
+        add_registered_role(class_name:, method_name:, display_as:)
+      end
+
+      def add_registered_role(class_name:, method_name:, display_as: nil) # :nodoc:
         registered_roles[class_name.to_s] ||= {}
         registered_roles[class_name.to_s][method_name.to_s] = RegisteredRole.new(
           class_name:,

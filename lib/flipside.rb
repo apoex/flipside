@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "active_record"
+require "active_support/deprecation"
 require "flipside/version"
 require "flipside/web"
 require "flipside/config/settings"
@@ -9,6 +10,7 @@ require "flipside/config/roles"
 require "flipside/config/flippables"
 require "models/flipside/feature"
 require "models/flipside/flippable"
+require "flipside/railtie" if defined?(Rails::Railtie)
 
 module Flipside
   extend Config::Settings
@@ -25,6 +27,10 @@ module Flipside
   end
 
   class << self
+    def deprecator
+      @deprecator ||= ActiveSupport::Deprecation.new("1.0", "Flipside")
+    end
+
     def enabled?(name, *objects)
       feature = find_by(name:)
       return false unless feature

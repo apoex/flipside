@@ -4,6 +4,9 @@
 - Add `Flipside.prune_orphaned_entities`
 - Registering the same role twice no longer lists it twice
 
+### Deprecated
+- `Flipside.register_entity` and `Flipside.register_role`, in favour of `flipside_entity` and `flipside_role` from `Flipside::Flippable`. They will be removed in 1.0.
+
 ## [0.3.4] - 2026-03-04
 - Support an array of default objects
 

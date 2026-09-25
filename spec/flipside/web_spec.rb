@@ -12,7 +12,7 @@ module Flipside
       ActiveRecord::Base.connection.create_table :users, force: true do |t|
         t.string(:name)
       end
-      Flipside.register_entity(class_name: "User", search_by: nil, display_as: :name)
+      Flipside.add_registered_entity(class_name: "User", search_by: nil, display_as: :name)
     end
 
     after do

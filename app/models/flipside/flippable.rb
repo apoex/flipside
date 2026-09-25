@@ -20,13 +20,13 @@ module Flipside
           as: :flippable,
           dependent: :delete_all
 
-        Flipside.register_entity(class_name: name, search_by:, display_as:, identified_by:)
+        Flipside.add_registered_entity(class_name: name, search_by:, display_as:, identified_by:)
       end
 
       def flipside_role(method_name, display_as: nil)
         ensure_listed_in_flippables!
 
-        Flipside.register_role(class_name: name, method_name:, display_as:)
+        Flipside.add_registered_role(class_name: name, method_name:, display_as:)
       end
 
       private
