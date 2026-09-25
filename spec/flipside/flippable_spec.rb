@@ -17,6 +17,7 @@ module Flipside
       Flipside.flippables = []
       Flipside.send(:registered_entities).clear
       Flipside.send(:registered_roles).clear
+      Flipside.send(:registered_flippables).clear
     end
 
     def define_user(&block)
@@ -48,9 +49,18 @@ module Flipside
         expect(Entity.all).to eq([other_entity])
       end
 
-      it "raises when the class is not listed in Flipside.flippables" do
-        expect { define_user { flipside_entity } }
+      it "raises on use when the class is not listed in Flipside.flippables" do
+        define_user { flipside_entity }
+
+        expect { Flipside.entity_classes }
           .to raise_error(Flipside::Error, "User must be listed in Flipside.flippables")
+      end
+
+      it "can be called before Flipside.flippables is set" do
+        define_user { flipside_entity(display_as: :name) }
+        Flipside.flippables = ["User"]
+
+        expect(Flipside.entity_classes).to eq(["User"])
       end
     end
 

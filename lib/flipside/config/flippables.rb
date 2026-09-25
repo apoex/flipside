@@ -10,6 +10,10 @@ module Flipside
         @flippables ||= []
       end
 
+      def register_flippable(class_name) # :nodoc:
+        registered_flippables << class_name.to_s
+      end
+
       private
 
       def load_flippables
@@ -20,6 +24,15 @@ module Flipside
           raise Error, "#{name} is listed in Flipside.flippables but calls neither " \
             "flipside_entity nor flipside_role"
         end
+
+        unlisted = registered_flippables.to_a - flippables
+        return if unlisted.empty?
+
+        raise Error, "#{unlisted.join(", ")} must be listed in Flipside.flippables"
+      end
+
+      def registered_flippables
+        @registered_flippables ||= Set.new
       end
     end
   end

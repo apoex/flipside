@@ -5,7 +5,9 @@ require "models/flipside/entity"
 
 module Flipside
   # Lets a model register itself with Flipside. The class must also be listed in
-  # Flipside.flippables, so that Flipside can load it when the UI needs it.
+  # Flipside.flippables, so that Flipside can load it when the UI needs it. The
+  # listing is checked when Flipside loads the classes rather than here, since
+  # a model may be loaded before the initializer that sets Flipside.flippables.
   module Flippable
     extend ActiveSupport::Concern
 
@@ -13,7 +15,7 @@ module Flipside
       # Registers the class as an entity and removes its Flipside::Entity rows
       # when a record is destroyed.
       def flipside_entity(search_by: nil, display_as: nil, identified_by: :id)
-        ensure_listed_in_flippables!
+        register_flippable!
 
         has_many :flipside_entities,
           class_name: "Flipside::Entity",
@@ -24,18 +26,17 @@ module Flipside
       end
 
       def flipside_role(method_name, display_as: nil)
-        ensure_listed_in_flippables!
+        register_flippable!
 
         Flipside.add_registered_role(class_name: name, method_name:, display_as:)
       end
 
       private
 
-      def ensure_listed_in_flippables!
+      def register_flippable!
         raise Flipside::Error, "Flipside macros need a named class" if name.nil?
-        return if Flipside.flippables.include?(name)
 
-        raise Flipside::Error, "#{name} must be listed in Flipside.flippables"
+        Flipside.register_flippable(name)
       end
     end
   end
