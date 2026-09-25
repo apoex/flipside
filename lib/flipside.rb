@@ -7,6 +7,7 @@ require "flipside/config/settings"
 require "flipside/config/entities"
 require "flipside/config/roles"
 require "models/flipside/feature"
+require "models/flipside/flippable"
 
 module Flipside
   extend Config::Settings

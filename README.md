@@ -97,6 +97,13 @@ Flipside.add_entity(name: "MyFeature", entity: user)
 Flipside.enabled? "MyFeature", user # => true
 ```
 
+Entities reference their record polymorphically, so there is no foreign key to clean them up when the record is deleted. Include `Flipside::Flippable` in the model to remove its entities when a record is destroyed:
+```ruby
+class User < ApplicationRecord
+  include Flipside::Flippable
+end
+```
+
 Features can be enabled for records responding true to a certain method. This is called a "role". Given that User records have an admin? method. A feature can then be enabled
 for all users who are admins, using the `.add_role` method:
 ```ruby
