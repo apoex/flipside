@@ -14,6 +14,13 @@ module Flipside
         registered_flippables << class_name.to_s
       end
 
+      # Raises unless Flipside.flippables and the classes calling the
+      # Flipside::Flippable macros agree. Runs whenever the UI reads the
+      # registry, and at boot in an app that eager loads (see Railtie).
+      def verify_flippables! # :nodoc:
+        load_flippables
+      end
+
       private
 
       def load_flippables

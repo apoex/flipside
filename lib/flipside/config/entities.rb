@@ -48,8 +48,8 @@ module Flipside
 
         if record.nil?
           "#{label} (deleted)"
-        elsif registered_entities.key?(record.class.to_s)
-          display_flippable(record)
+        elsif (registration = registration_for(record.class))
+          registration.display(record)
         else
           label
         end
@@ -58,9 +58,23 @@ module Flipside
       private
 
       def display_flippable(record)
-        registered_entities
-          .fetch(record.class.to_s)
-          .display(record)
+        registration = registration_for(record.class)
+        raise KeyError, "#{record.class} is not registered with Flipside" unless registration
+
+        registration.display(record)
+      end
+
+      # The registration of the class or its closest registered superclass, so
+      # an STI subclass is displayed through the base class's registration
+      # unless it has one of its own.
+      def registration_for(klass)
+        klass.ancestors.each do |ancestor|
+          next unless ancestor.is_a?(Class)
+
+          registration = registered_entities[ancestor.name]
+          return registration if registration
+        end
+        nil
       end
 
       def registered_entities

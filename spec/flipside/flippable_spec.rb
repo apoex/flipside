@@ -75,6 +75,22 @@ module Flipside
       end
     end
 
+    describe "Flipside.verify_flippables!" do
+      it "passes when the list matches the classes using the macros" do
+        Flipside.flippables = ["User"]
+        define_user { flipside_role(:admin?) }
+
+        expect { Flipside.verify_flippables! }.not_to raise_error
+      end
+
+      it "raises for a class using the macros that is not listed" do
+        define_user { flipside_role(:admin?) }
+
+        expect { Flipside.verify_flippables! }
+          .to raise_error(Flipside::Error, "User must be listed in Flipside.flippables")
+      end
+    end
+
     it "registers without deprecation warnings" do
       expect(Flipside.deprecator).not_to receive(:warn)
       Flipside.flippables = ["User"]
