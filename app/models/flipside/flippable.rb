@@ -13,8 +13,9 @@ module Flipside
     extend ActiveSupport::Concern
 
     included do
-      class_attribute :_flipside_search_by, :_flipside_display_as, :_flipside_identified_by,
-        instance_accessor: false, instance_predicate: false
+      # The class's Flipside::RegisteredEntity. Being a class attribute, it is
+      # inherited by STI subclasses and starts out empty in a reloaded class.
+      class_attribute :_flipside_registration, instance_accessor: false, instance_predicate: false
     end
 
     class_methods do
@@ -23,15 +24,8 @@ module Flipside
       # flipside_display_as or flipside_identified_by does the same, so this is
       # only needed to register with the defaults.
       def flipside_entity(search_by: nil, display_as: nil, identified_by: nil)
-        register_flipside_entity!
+        flipside_registration
         deprecated_entity_options(search_by:, display_as:, identified_by:)
-      end
-
-      # Sets the column that identifies an entity, :id by default. Registers the
-      # class as an entity, as flipside_entity does.
-      def flipside_identified_by(column)
-        self._flipside_identified_by = column.to_sym
-        register_flipside_entity!
       end
 
       # Sets how entities are found from a search in the UI, either with a block
@@ -39,16 +33,20 @@ module Flipside
       # scope). Either is given the search string and returns the matching
       # records. Registers the class as an entity, as flipside_entity does.
       def flipside_search_by(method_name = nil, &block)
-        self._flipside_search_by = method_or_block(method_name, block)
-        register_flipside_entity!
+        flipside_registration.search_by = method_or_block(method_name, block)
       end
 
       # Sets how entities are displayed in the UI, either with a block given the
       # record or the name of an instance method. Either returns a string.
       # Registers the class as an entity, as flipside_entity does.
       def flipside_display_as(method_name = nil, &block)
-        self._flipside_display_as = method_or_block(method_name, block)
-        register_flipside_entity!
+        flipside_registration.display_as = method_or_block(method_name, block)
+      end
+
+      # Sets the column that identifies an entity, :id by default. Registers the
+      # class as an entity, as flipside_entity does.
+      def flipside_identified_by(column)
+        flipside_registration.identified_by = column.to_sym
       end
 
       def flipside_role(method_name, display_as: nil)
@@ -65,29 +63,22 @@ module Flipside
         Flipside.register_flippable(name)
       end
 
-      # Safe to call more than once. The registration is replaced each time, so
-      # that it picks up identified_by whichever order the macros are called in.
-      def register_flipside_entity!
+      # The registration this class owns, created on first use. An STI subclass
+      # starts from a copy of the settings it inherits.
+      def flipside_registration
+        return _flipside_registration if _flipside_registration&.class_name == name
+
         register_flippable!
 
-        unless @flipside_entity_registered
-          has_many :flipside_entities,
-            class_name: "Flipside::Entity",
-            as: :flippable,
-            dependent: :delete_all
-          @flipside_entity_registered = true
-        end
+        has_many :flipside_entities,
+          class_name: "Flipside::Entity",
+          as: :flippable,
+          dependent: :delete_all
 
-        Flipside.add_registered_entity(
+        self._flipside_registration = Flipside.add_registered_entity(
           class_name: name,
-          search_by: ->(query) { flipside_search(query) },
-          display_as: ->(entity) { flipside_display(entity) },
-          identified_by: flipside_identifier_column
+          **(_flipside_registration&.options || {})
         )
-      end
-
-      def flipside_identifier_column
-        _flipside_identified_by || :id
       end
 
       def method_or_block(method_name, block)
@@ -97,22 +88,6 @@ module Flipside
         raise ArgumentError, "pass either a method name or a block"
       end
 
-      def flipside_search(query)
-        case _flipside_search_by
-        when Symbol then public_send(_flipside_search_by, query)
-        when Proc then instance_exec(query, &_flipside_search_by)
-        else where(flipside_identifier_column => query)
-        end
-      end
-
-      def flipside_display(entity)
-        case _flipside_display_as
-        when Symbol then entity.public_send(_flipside_display_as)
-        when Proc then _flipside_display_as.call(entity)
-        else entity.public_send(flipside_identifier_column)
-        end
-      end
-
       def deprecated_entity_options(search_by:, display_as:, identified_by:)
         return if search_by.nil? && display_as.nil? && identified_by.nil?
 
@@ -120,23 +95,15 @@ module Flipside
           "The search_by, display_as and identified_by options of flipside_entity are " \
           "deprecated and will be removed in Flipside #{Flipside.deprecator.deprecation_horizon}. " \
           "Use flipside_search_by, flipside_display_as and flipside_identified_by in " \
-          "#{name} instead. Note that " \
-          "a method name given to flipside_search_by names a class method or scope, so " \
-          "search_by: :name becomes flipside_search_by { |query| where(name: query) }."
+          "#{name} instead. Note that a method name given to flipside_search_by names a " \
+          "class method or scope, so search_by: :name becomes " \
+          "flipside_search_by { |query| where(name: query) }."
         )
 
-        flipside_identified_by(identified_by) if identified_by
-
-        case search_by
-        when Symbol then flipside_search_by { |query| where(search_by => query) }
-        when Proc then flipside_search_by(&search_by)
-        end
-
-        case display_as
-        when Symbol then flipside_display_as(display_as)
-        when Proc then flipside_display_as(&display_as)
-        when String then flipside_display_as { display_as }
-        end
+        registration = flipside_registration
+        registration.search_by = RegisteredEntity.column_search(search_by) if search_by
+        registration.display_as = display_as if display_as
+        registration.identified_by = identified_by if identified_by
       end
     end
   end

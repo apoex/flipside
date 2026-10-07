@@ -9,10 +9,11 @@ module Flipside
           "#{deprecator.deprecation_horizon}. Include Flipside::Flippable in " \
           "#{class_name}, call flipside_entity there and list it in Flipside.flippables."
         )
+        search_by = RegisteredEntity.column_search(search_by)
         add_registered_entity(class_name:, search_by:, display_as:, identified_by:)
       end
 
-      def add_registered_entity(class_name:, search_by:, display_as:, identified_by: :id) # :nodoc:
+      def add_registered_entity(class_name:, search_by: nil, display_as: nil, identified_by: :id) # :nodoc:
         registered_entities[class_name.to_s] = RegisteredEntity.new(
           class_name:,
           search_by:,

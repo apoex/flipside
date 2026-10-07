@@ -2,7 +2,16 @@ require "flipside/search_result"
 
 module Flipside
   class RegisteredEntity
-    attr_reader :class_name, :search_by, :display_as, :identified_by
+    attr_reader :class_name
+    attr_accessor :search_by, :display_as, :identified_by
+
+    # Turns a column name, which search_by matched exactly in the deprecated
+    # register_entity and flipside_entity options, into a search block.
+    def self.column_search(search_by)
+      return search_by unless search_by.is_a?(Symbol)
+
+      ->(query) { where(search_by => query) }
+    end
 
     def initialize(class_name:, identified_by: :id, search_by: nil, display_as: nil)
       @class_name = class_name
@@ -11,8 +20,12 @@ module Flipside
       @identified_by = identified_by
     end
 
+    def options
+      {search_by:, display_as:, identified_by:}
+    end
+
     def search(query)
-      Array(lookup_proc.call(query)).map do |entity|
+      Array(lookup(query)).map do |entity|
         SearchResult.new(
           entity,
           display(entity),
@@ -22,39 +35,32 @@ module Flipside
     end
 
     def find(identifier)
-      class_name.constantize.find_by!("#{identified_by}": identifier)
+      klass.find_by!("#{identified_by}": identifier)
     end
 
     def display(entity)
-      display_proc.call(entity)
+      case display_as
+      when Proc then display_as.call(entity)
+      when Symbol then entity.public_send(display_as)
+      when String then display_as
+      else entity.public_send(identified_by)
+      end
     end
 
     private
 
-    def lookup_proc
-      @lookup_proc ||=
-        case search_by
-        when Proc
-          search_by
-        when Symbol
-          ->(query) { class_name.constantize.where("#{search_by}": query) }
-        else
-          ->(query) { class_name.constantize.where("#{identified_by}": query) }
-        end
+    # A block runs in the context of the class and a Symbol names a class
+    # method (e.g. a scope), so both can call where directly.
+    def lookup(query)
+      case search_by
+      when Proc then klass.instance_exec(query, &search_by)
+      when Symbol then klass.public_send(search_by, query)
+      else klass.where("#{identified_by}": query)
+      end
     end
 
-    def display_proc
-      @display_proc ||=
-        case display_as
-        when Proc
-          display_as
-        when Symbol
-          ->(entity) { entity.public_send(display_as) }
-        when String
-          ->(entity) { display_as }
-        else
-          ->(entity) { entity.public_send(identified_by) }
-        end
+    def klass
+      class_name.constantize
     end
   end
 end

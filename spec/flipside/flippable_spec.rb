@@ -184,6 +184,36 @@ module Flipside
       end
     end
 
+    describe "registration" do
+      before { Flipside.flippables = ["User", "Admin"] }
+
+      it "starts over when the class is reloaded" do
+        define_user do
+          flipside_display_as :name
+          flipside_identified_by :name
+        end
+        define_user { flipside_entity }
+
+        expect(Flipside.display_entity(User.new(id: 5, name: "John Doe"))).to eq(5)
+      end
+
+      it "copies the inherited settings to an STI subclass calling a macro" do
+        define_user do
+          flipside_search_by { |str| where(name: str) }
+          flipside_display_as :name
+        end
+        stub_const("Admin", Class.new(User))
+        Admin.flipside_identified_by :name
+        Admin.create!(name: "John Doe")
+
+        results = Flipside.search_entity(class_name: "Admin", query: "John Doe")
+
+        expect(results.map { [_1.display_as, _1.identifier] }).to eq([["John Doe", "John Doe"]])
+        expect(Flipside.search_entity(class_name: "User", query: "John Doe").map(&:identifier))
+          .to eq([User.first.id])
+      end
+    end
+
     describe "deprecated flipside_entity options" do
       before { Flipside.flippables = ["User"] }
 
