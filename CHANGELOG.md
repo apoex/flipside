@@ -1,3 +1,9 @@
+## [Unreleased]
+- Add `flipside_search_by`, `flipside_display_as` and `flipside_identified_by` to `Flipside::Flippable`. Each one registers the class as an entity, so `flipside_entity` is only needed for the defaults
+
+### Deprecated
+- The `search_by`, `display_as` and `identified_by` options of `flipside_entity`, in favour of `flipside_search_by`, `flipside_display_as` and `flipside_identified_by`. They will be removed in 1.0.
+
 ## [0.4.0] - 2026-09-25
 - Show entities whose record has been deleted instead of raising in the UI
 - Add `Flipside::Flippable` with `flipside_entity` and `flipside_role`, so models can register themselves (listed in `Flipside.flippables`); entities of a destroyed record are removed

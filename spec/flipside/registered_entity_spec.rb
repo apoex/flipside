@@ -15,6 +15,7 @@ module Flipside
         t.string(:name)
         t.string(:email)
       end
+      ActiveRecord::Base.connection.clear_cache!
     end
 
     after do
