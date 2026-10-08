@@ -27,11 +27,10 @@ module Flipside
       User.create(name: "bar", email: "bar@example.com")
     end
 
-    it "can search and show an entity by method name" do
-      User.scope(:by_email, ->(str) { where(email: str) })
+    it "can search and show an entity by symbol" do
       registered_entity = RegisteredEntity.new(
         class_name: "User",
-        search_by: :by_email,
+        search_by: :email,
         display_as: :email,
         identified_by: :email
       )
@@ -55,15 +54,6 @@ module Flipside
       registered_entity = RegisteredEntity.new(class_name: "User", identified_by: :email)
 
       expect(registered_entity.search("foo@example.com").map(&:display_as)).to eq(["foo@example.com"])
-    end
-
-    it "turns a column name into a search block for the deprecated options" do
-      registered_entity = RegisteredEntity.new(
-        class_name: "User",
-        search_by: RegisteredEntity.column_search(:email)
-      )
-
-      expect(registered_entity.search("bar@example.com").map(&:object).map(&:name)).to eq(["bar"])
     end
 
     it "can search an entity by proc" do

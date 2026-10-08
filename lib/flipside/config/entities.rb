@@ -9,7 +9,6 @@ module Flipside
           "#{deprecator.deprecation_horizon}. Include Flipside::Flippable in " \
           "#{class_name}, call flipside_entity there and list it in Flipside.flippables."
         )
-        search_by = RegisteredEntity.column_search(search_by)
         add_registered_entity(class_name:, search_by:, display_as:, identified_by:)
       end
 

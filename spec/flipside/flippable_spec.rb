@@ -87,11 +87,8 @@ module Flipside
         expect(search("Ja")).to eq([jane])
       end
 
-      it "searches with a class method" do
-        User.class_eval do
-          scope :named, ->(str) { where(name: str) }
-          flipside_search_by :named
-        end
+      it "searches by a column" do
+        User.flipside_search_by :name
 
         expect(search("John Doe")).to eq([john])
       end
@@ -121,7 +118,7 @@ module Flipside
 
       it "requires either a method name or a block" do
         expect { User.flipside_search_by }.to raise_error(ArgumentError)
-        expect { User.flipside_search_by(:named) { nil } }.to raise_error(ArgumentError)
+        expect { User.flipside_search_by(:name) { nil } }.to raise_error(ArgumentError)
       end
     end
 

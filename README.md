@@ -179,12 +179,12 @@ Flipside.default_object = -> { Current.user }
 
 ### Registering from the model
 
-Entities and roles are searched for in the UI, so Flipside needs to know which classes can be used. A model registers itself by including `Flipside::Flippable` and calling the entity macros (`flipside_entity`, `flipside_search_by`, `flipside_display_as`) and/or `flipside_role`:
+Entities and roles are searched for in the UI, so Flipside needs to know which classes can be used. A model registers itself by including `Flipside::Flippable` and calling the entity macros (`flipside_entity`, `flipside_search_by`, `flipside_display_as`, `flipside_identified_by`) and/or `flipside_role`:
 ```ruby
 class User < ApplicationRecord
   include Flipside::Flippable
 
-  flipside_search_by { |str| where(name: str) }
+  flipside_search_by :name
   flipside_display_as :name
   flipside_role :admin?
   flipside_role :awesome?, display_as: "Awesome users"
@@ -233,10 +233,9 @@ flipside_search_by do |str|
 end
 ```
 
-Instead of a block, it may be given the name of a class method (e.g. a scope), which is called with the search string:
+Instead of a block, it may be given the name of a column, e.g. `:name`. Then records with an exact match on that column are returned, i.e. `User.where(name: query)`:
 ```ruby
-scope :lookup, ->(str) { where(email: str) }
-flipside_search_by :lookup
+flipside_search_by :name
 ```
 
 Without `flipside_search_by`, records are found by an exact match on `identified_by`.
@@ -266,7 +265,7 @@ Without `flipside_display_as`, entities are displayed by their `identified_by` v
 
 An STI subclass inherits these settings. When a subclass calls one of the macros itself, it is registered as an entity of its own, so it must also be listed in `Flipside.flippables` and shows up separately in the UI.
 
-The `search_by`, `display_as` and `identified_by` keyword arguments of `flipside_entity` from Flipside 0.4.0 are deprecated in favour of these macros, and will be removed in 1.0. Note that a `Symbol` given to `search_by:` matched that attribute exactly, whereas a method name given to `flipside_search_by` names a class method, so `search_by: :name` becomes `flipside_search_by { |str| where(name: str) }`.
+The `search_by`, `display_as` and `identified_by` keyword arguments of `flipside_entity` from Flipside 0.4.0 are deprecated in favour of these macros, and will be removed in 1.0.
 
 ### Roles
 
@@ -312,7 +311,7 @@ Flipside.flippables = %w[User]
 class User < ApplicationRecord
   include Flipside::Flippable
 
-  flipside_search_by { |str| where(name: str) }
+  flipside_search_by :name
   flipside_display_as :name
   flipside_role :admin?
 end

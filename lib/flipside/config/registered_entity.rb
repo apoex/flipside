@@ -5,14 +5,6 @@ module Flipside
     attr_reader :class_name
     attr_accessor :search_by, :display_as, :identified_by
 
-    # Turns a column name, which search_by matched exactly in the deprecated
-    # register_entity and flipside_entity options, into a search block.
-    def self.column_search(search_by)
-      return search_by unless search_by.is_a?(Symbol)
-
-      ->(query) { where(search_by => query) }
-    end
-
     def initialize(class_name:, identified_by: :id, search_by: nil, display_as: nil)
       @class_name = class_name
       @search_by = search_by
@@ -49,12 +41,12 @@ module Flipside
 
     private
 
-    # A block runs in the context of the class and a Symbol names a class
-    # method (e.g. a scope), so both can call where directly.
+    # A block runs in the context of the class, so it can call where directly.
+    # A Symbol names a column to match exactly.
     def lookup(query)
       case search_by
       when Proc then klass.instance_exec(query, &search_by)
-      when Symbol then klass.public_send(search_by, query)
+      when Symbol then klass.where("#{search_by}": query)
       else klass.where("#{identified_by}": query)
       end
     end
