@@ -214,7 +214,7 @@ class User < ApplicationRecord
 end
 ```
 
-`flipside_identified_by` sets the column used as primary key for the corresponding table. This defaults to `:id` and typically does not need to be changed.
+`flipside_identified_by` sets the column Flipside uses to identify records. This defaults to `:id` and typically does not need to be changed.
 Currently composite keys are not supported.
 ```ruby
 flipside_identified_by :uuid
