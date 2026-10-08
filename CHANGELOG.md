@@ -1,5 +1,8 @@
-## [Unreleased]
+## [0.5.0] - 2026-10-08
 - Add `flipside_search_by`, `flipside_display_as` and `flipside_identified_by` to `Flipside::Flippable`. Each one registers the class as an entity, so `flipside_entity` is only needed for the defaults
+- A block given to `flipside_search_by` runs in the context of the class, so it can call `where` directly
+- An STI subclass inherits its parent's entity settings, and is registered as an entity of its own when it calls one of the macros itself
+- Test against Ruby 3.4 and 4.0
 
 ### Deprecated
 - The `search_by`, `display_as` and `identified_by` options of `flipside_entity`, in favour of `flipside_search_by`, `flipside_display_as` and `flipside_identified_by`. They will be removed in 1.0.
