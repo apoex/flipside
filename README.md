@@ -97,7 +97,7 @@ Flipside.add_entity(name: "MyFeature", entity: user)
 Flipside.enabled? "MyFeature", user # => true
 ```
 
-Entities reference their record polymorphically, so there is no foreign key to clean them up when the record is deleted. A model registered with `flipside_entity` (see [Registering from the model](#registering-from-the-model)) removes its entities when a record is destroyed.
+Entities reference their record polymorphically, so there is no foreign key to clean them up when the record is deleted. A model registered as an entity (see [Registering from the model](#registering-from-the-model)) removes its entities when a record is destroyed.
 
 Entities left behind by records deleted without callbacks (or before the concern was added) can be removed with:
 ```ruby
@@ -179,12 +179,13 @@ Flipside.default_object = -> { Current.user }
 
 ### Registering from the model
 
-Entities and roles are searched for in the UI, so Flipside needs to know which classes can be used. A model registers itself by including `Flipside::Flippable` and calling `flipside_entity` and/or `flipside_role`:
+Entities and roles are searched for in the UI, so Flipside needs to know which classes can be used. A model registers itself by including `Flipside::Flippable` and calling the entity macros (`flipside_entity`, `flipside_search_by`, `flipside_display_as`, `flipside_identified_by`) and/or `flipside_role`:
 ```ruby
 class User < ApplicationRecord
   include Flipside::Flippable
 
-  flipside_entity search_by: :name, display_as: :name
+  flipside_search_by :name
+  flipside_display_as :name
   flipside_role :admin?
   flipside_role :awesome?, display_as: "Awesome users"
 end
@@ -204,36 +205,48 @@ Entities can be added to a feature by searching for records.
 
 ![Add an entity](/add_entity.png)
 
-`flipside_entity` should be called in each class that may be used as a feature enabler. It also removes the entities of a record when it is destroyed. Note that this includes soft deletion that runs destroy callbacks (e.g. paranoia), so a restored record comes back without its features. Soft deletion that skips them (e.g. discard) keeps the entities.
+Each class that may be used as a feature enabler is registered as an entity by calling `flipside_entity`, `flipside_search_by`, `flipside_display_as` or `flipside_identified_by` (any combination of them, in any order). `flipside_entity` is only needed to register with the defaults. A registered entity class also removes the entities of a record when it is destroyed. Note that this includes soft deletion that runs destroy callbacks (e.g. paranoia), so a restored record comes back without its features. Soft deletion that skips them (e.g. discard) keeps the entities.
 ```ruby
 class User < ApplicationRecord
   include Flipside::Flippable
 
-  flipside_entity search_by: :name, display_as: :name, identified_by: :id
+  flipside_entity
 end
 ```
 
-The `search_by` keyword argument, which may be a `Symbol` or a `Proc`, dictates how records are found from searching in the ui.
-When a `Symbol` is given, e.g. `:name`, then entities with an exact match on the corresponding attribute are returned. I.e. `User.where(name: query)`.
-When a `Proc` is given, then this `Proc` is called with the search string and is expected to return an object responding to `to_a` (e.g. an AR collection).
+`flipside_identified_by` sets the column Flipside uses to identify records. This defaults to `:id` and typically does not need to be changed.
+Currently composite keys are not supported.
+```ruby
+flipside_identified_by :uuid
+```
+
+`flipside_search_by` dictates how records are found from searching in the ui. It takes a block, which is called with the search string in the context of the class and is expected to return an object responding to `to_a` (e.g. an AR collection).
 This gives us the flexibility to decide how to search for entities. For example, to search for users with matching first name or last name or an email
 starting with _query_, something like this could be used.
 ```ruby
-flipside_entity search_by: ->(str) {
-  where("lower(first_name) = :name OR lower(last_name) = :name or email LIKE :str", name: str.downcase, str: "#{str}%")
-}
+flipside_search_by do |str|
+  where(
+    "lower(first_name) = :name OR lower(last_name) = :name OR email LIKE :str",
+    name: str.downcase,
+    str: "#{str}%"
+  )
+end
 ```
 
-The `identified_by` keyword argument, sets the column used as primary key for the corresponding table. This defaults to `:id` and typically does need to be change.
-Currently composite keys are not supported.
+Instead of a block, it may be given the name of a column, e.g. `:name`. Then records with an exact match on that column are returned, i.e. `User.where(name: query)`:
+```ruby
+flipside_search_by :name
+```
 
-The `display_as` keyword argument, is used to configure how these entities show up in the combobox. When set to a `Symbol`, then this value is sent to the corresponding entity.
+Without `flipside_search_by`, records are found by an exact match on `identified_by`.
+
+`flipside_display_as` configures how these entities show up in the combobox. When given the name of an instance method, that method is called on the entity.
 For example, given the following setup. Users will be displayed with first name and last name:
 ```ruby
 class User < ApplicationRecord
   include Flipside::Flippable
 
-  flipside_entity display_as: :name
+  flipside_display_as :name
 
   def name
     [first_name, last_name].compact.map(&:capitalize).join(" ")
@@ -241,10 +254,18 @@ class User < ApplicationRecord
 end
 ```
 
-When a `Proc` is given, then it is expected to take an entity as input and return a string used for displaying the entity. The config above could then instead be done using:
+When given a block, it is called with the entity and is expected to return a string used for displaying the entity. The config above could then instead be done using:
 ```ruby
-flipside_entity display_as: ->(user) { [user.first_name, user.last_name].compact.map(&:capitalize).join(" ") }
+flipside_display_as do |user|
+  [user.first_name, user.last_name].compact.map(&:capitalize).join(" ")
+end
 ```
+
+Without `flipside_display_as`, entities are displayed by their `identified_by` value.
+
+An STI subclass inherits these settings. When a subclass calls one of the macros itself, it is registered as an entity of its own, so it must also be listed in `Flipside.flippables` and shows up separately in the UI.
+
+The `search_by`, `display_as` and `identified_by` keyword arguments of `flipside_entity` from Flipside 0.4.0 are deprecated in favour of these macros, and will be removed in 1.0.
 
 ### Roles
 
@@ -271,7 +292,7 @@ Flipside.flippables = %w[User OtherGem::Account]
 
 Rails.application.config.to_prepare do
   OtherGem::Account.include(Flipside::Flippable)
-  OtherGem::Account.flipside_entity(display_as: :name)
+  OtherGem::Account.flipside_display_as(:name)
 end
 ```
 
@@ -290,7 +311,8 @@ Flipside.flippables = %w[User]
 class User < ApplicationRecord
   include Flipside::Flippable
 
-  flipside_entity search_by: :name, display_as: :name
+  flipside_search_by :name
+  flipside_display_as :name
   flipside_role :admin?
 end
 ```

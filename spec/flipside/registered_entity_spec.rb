@@ -15,6 +15,7 @@ module Flipside
         t.string(:name)
         t.string(:email)
       end
+      ActiveRecord::Base.connection.clear_cache!
     end
 
     after do
@@ -40,6 +41,21 @@ module Flipside
       expect(result.first.display_as).to eq("bar@example.com")
     end
 
+    it "runs a search block in the context of the class" do
+      registered_entity = RegisteredEntity.new(
+        class_name: "User",
+        search_by: ->(str) { where(name: str) }
+      )
+
+      expect(registered_entity.search("foo").map(&:object)).to eq(User.where(name: "foo").to_a)
+    end
+
+    it "searches by identified_by by default" do
+      registered_entity = RegisteredEntity.new(class_name: "User", identified_by: :email)
+
+      expect(registered_entity.search("foo@example.com").map(&:display_as)).to eq(["foo@example.com"])
+    end
+
     it "can search an entity by proc" do
       registered_entity = RegisteredEntity.new(
         class_name: "User",
@@ -59,7 +75,6 @@ module Flipside
 
       registered_entity = RegisteredEntity.new(
         class_name: "User",
-        search_by: :email,
         identified_by: :id
       )
 
